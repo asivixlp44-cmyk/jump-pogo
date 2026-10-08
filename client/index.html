@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>+1 Jump Pogo</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A6%98%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap">
+<style>
+:root {
+    color-scheme: dark;
+    --ink: #16121f;
+    --panel: #173a6e;
+    --panel-2: #1f4c8a;
+    --yellow: #ffd028;
+    --green: #46ec50;
+    --blue: #28c8ff;
+    --red: #e82434;
+    --purple: #c428ff;
+    --white: #ffffff;
+    --font: "Fredoka", "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+    font-size: clamp(10px, calc(100vmin / 52), 17px);
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; margin: 0; overflow: hidden; background: #3a9cf0; }
+body { font-family: var(--font); color: var(--white); user-select: none; -webkit-user-select: none; touch-action: none; }
+#app { position: fixed; inset: 0; }
+#view { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; }
+#speedLines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+button { font-family: var(--font); cursor: pointer; color: var(--white); }
+button:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+.o { text-shadow: -2px -2px 0 var(--ink), 2px -2px 0 var(--ink), -2px 2px 0 var(--ink), 2px 2px 0 var(--ink), 0 2px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink); }
+.o1 { text-shadow: -1px -1px 0 var(--ink), 1px -1px 0 var(--ink), -1px 1px 0 var(--ink), 1px 1px 0 var(--ink), 0 1.5px 0 var(--ink); }
+
+/* Chunky buttons with a springy press */
+.btn {
+    border: 3px solid var(--ink); border-radius: 0.9rem; font-weight: 700;
+    box-shadow: inset 0 -0.3rem 0 rgba(0, 0, 0, 0.22), 0 0.2rem 0 var(--ink);
+    transition: transform 0.18s cubic-bezier(0.34, 1.8, 0.5, 1), filter 0.15s ease, box-shadow 0.15s ease;
+}
+.btn:hover:not(:disabled) { transform: translateY(-2px) scale(1.05); filter: brightness(1.08); }
+.btn:active:not(:disabled) { transform: translateY(2px) scale(0.94); transition-duration: 0.06s; }
+.g-yellow { background: linear-gradient(#ffe36b, #ffb51c); }
+.g-green { background: linear-gradient(#7dff6b, #22c73a); }
+.g-blue { background: linear-gradient(#6fe0ff, #1f8fff); }
+.g-red { background: linear-gradient(#ff7a8a, #e8182c); }
+.g-purple { background: linear-gradient(#e27bff, #8a1cff); }
+.g-pink { background: linear-gradient(#ff8fd0, #ff3fa0); }
+.g-grey { background: linear-gradient(#9fb4d6, #5f7598); }
+.g-orange { background: linear-gradient(#ffb04a, #ff6a14); }
+.g-cyan { background: linear-gradient(#8af4ff, #18b8e8); }
+.g-violet { background: linear-gradient(#c87aff, #8a2ae8); }
+.g-lime { background: linear-gradient(#c8ff5a, #46c81c); }
+.g-rainbow { background: linear-gradient(100deg, #ff3c5a 0%, #ffb51c 22%, #ffe83a 38%, #46ec50 55%, #28c8ff 72%, #8a5aff 88%, #ff4ad8 100%); background-size: 200% 100%; animation: rainbow 4s linear infinite; }
+@keyframes rainbow { to { background-position: 200% 0; } }
+.badge { position: absolute; top: -0.5rem; right: -0.5rem; background: var(--red); border: 2px solid var(--ink); border-radius: 1rem; font-size: 0.8rem; padding: 0.05rem 0.4rem; font-weight: 700; z-index: 1; }
+
+/* HUD ------------------------------------------------------------------ */
+#hud { position: absolute; inset: 0; pointer-events: none; }
+#hud > * { pointer-events: auto; }
+#hud .passive { pointer-events: none; }
+
+/* Top centre: the objective line on a dark band, and run info under it */
+#quest { position: absolute; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 1.4rem); transform: translateX(-50%); font-size: 1.75rem; font-weight: 700; color: #ffe36b; white-space: nowrap; pointer-events: none;
+    padding: 0.25rem 5rem; background: linear-gradient(90deg, transparent, rgba(22, 18, 31, 0.5) 18%, rgba(22, 18, 31, 0.5) 82%, transparent); }
+#quest.done { color: var(--green); }
+#quest.pop { animation: questPop 0.6s cubic-bezier(0.2, 1.6, 0.4, 1); }
+@keyframes questPop { from { transform: translateX(-50%) scale(1.3); } }
+#runInfo { position: absolute; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 4.4rem); transform: translateX(-50%); font-size: 1.2rem; font-weight: 700; white-space: nowrap; pointer-events: none; background: rgba(22, 18, 31, 0.45); border-radius: 1rem; padding: 0.15rem 0.9rem; }
+
+#runInfo { display: grid; justify-items: center; gap: 0.25rem; }
+#runInfo .alt { position: relative; width: 16rem; height: 0.55rem; border-radius: 1rem; background: rgba(255, 255, 255, 0.25); overflow: visible; }
+#altFill { position: absolute; inset: 0 auto 0 0; width: 0%; border-radius: 1rem; background: linear-gradient(90deg, #46ec50, #ffd028, #ff8a1e, #ff3c5a, #ff4ad8, #8a5aff, #3a8cff); background-size: 16rem 100%; transition: width 0.2s linear; }
+#altBest { position: absolute; top: -0.25rem; width: 0.3rem; height: 1.05rem; margin-left: -0.15rem; background: #fff; border: 2px solid var(--ink); border-radius: 0.2rem; }
+/* "NEW HEIGHT! 175 STUD" when you reach a step you've never stood on */
+#record { position: absolute; left: 50%; top: 31%; transform: translateX(-50%); display: grid; justify-items: center; pointer-events: none; white-space: nowrap; }
+#record .rt { font-size: 2.2rem; font-weight: 700; color: #7dff6b; letter-spacing: 0.06em; }
+#record .rv { font-size: 4.2rem; font-weight: 700; line-height: 1; background: linear-gradient(#ffffff, #ffe36b 55%, #ffb51c); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0.25rem 0 var(--ink)); text-shadow: none; }
+#record.show { animation: recIn 2.4s cubic-bezier(0.2, 1.5, 0.4, 1) forwards; }
+@keyframes recIn { 0% { opacity: 0; transform: translateX(-50%) scale(0.4) rotate(-6deg); } 14% { opacity: 1; transform: translateX(-50%) scale(1.12); } 24% { transform: translateX(-50%) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-1.5rem); } }
+/* Level up: "Level 2 > Level 3" in cyan over "Jump Power 55 > 57.5 (+2.5)" in orange, as in the reference */
+#levelBanner { position: absolute; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 6.4rem); transform: translateX(-50%); display: grid; justify-items: center; pointer-events: none; white-space: nowrap; opacity: 0;
+    width: min(46rem, 96vw); padding: 0.3rem 0; background: linear-gradient(90deg, transparent, rgba(22, 18, 31, 0.62) 12%, rgba(22, 18, 31, 0.62) 88%, transparent); z-index: 2; }
+#levelBanner .a { font-size: 1.5rem; font-weight: 700; color: #3ad0ff; }
+#levelBanner .b { font-size: 1.4rem; font-weight: 700; color: #ffa21c; }
+#levelBanner.show { animation: banner 2.6s ease forwards; }
+@keyframes banner { 0% { opacity: 0; transform: translateX(-50%) translateY(-1rem); } 10% { opacity: 1; transform: translateX(-50%); } 80% { opacity: 1; } 100% { opacity: 0; } }
+
+/* Left: Wins, then SHOP / REBIRTH / TRAILS / REWARD tiles (2 x 2, like the reference), boost chip */
+#leftCol { position: absolute; left: max(1rem, env(safe-area-inset-left, 0px)); top: 48%; transform: translateY(-50%); display: grid; grid-template-columns: repeat(2, var(--tile)); gap: 0.45rem; --tile: 4.9rem; }
+#winsBox { grid-column: span 2; display: flex; align-items: center; gap: 0.35rem; background: linear-gradient(90deg, rgba(22, 18, 31, 0.6), rgba(22, 18, 31, 0)); border-radius: 0.8rem; padding: 0.15rem 1.6rem 0.15rem 0.3rem; font-variant-numeric: tabular-nums; }
+#winsBox .cup { font-size: 2.3rem; line-height: 1; filter: drop-shadow(0 0.15rem 0 rgba(0, 0, 0, 0.4)); }
+#winsBox b { font-size: 2.2rem; }
+#winsPlus { width: 1.7rem; height: 1.7rem; padding: 0; border-radius: 0.4rem; font-size: 1.3rem; line-height: 1; margin-left: 0.2rem; }
+.rbx { position: relative; width: var(--tile); height: var(--tile); padding: 0; border: 0.22rem solid var(--ink); border-radius: 0.75rem; cursor: pointer; overflow: visible;
+    background-image: var(--studs), var(--bg); background-size: 1.4rem 1.4rem, 100% 100%;
+    box-shadow: inset 0 0.22rem 0 rgba(255, 255, 255, 0.35), inset 0 -0.3rem 0 rgba(0, 0, 0, 0.18), 0 0.22rem 0 var(--ink), 0 0.45rem 0.6rem rgba(0, 0, 0, 0.25);
+    transition: transform 0.18s cubic-bezier(0.34, 1.8, 0.5, 1), filter 0.15s ease;
+    --studs: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect x='3.5' y='3.5' width='17' height='17' rx='3' fill='none' stroke='rgba(0,0,0,0.10)' stroke-width='2.2'/%3E%3Cpath d='M4.5 15 V6 Q4.5 4.5 6 4.5 H15' fill='none' stroke='rgba(255,255,255,0.22)' stroke-width='1.6'/%3E%3C/svg%3E"); }
+.rbx .ic { position: absolute; left: 50%; top: 4%; width: 72%; height: 72%; transform: translateX(-50%); filter: drop-shadow(0 0.12rem 0 rgba(0, 0, 0, 0.3)); transition: transform 0.25s cubic-bezier(0.34, 1.8, 0.5, 1); }
+.rbx .lb { position: absolute; left: 0; right: 0; bottom: 5%; text-align: center; font-size: 1.05rem; font-weight: 700; line-height: 1; color: #fff;
+    text-shadow: -0.1rem -0.1rem 0 var(--ink), 0.1rem -0.1rem 0 var(--ink), -0.1rem 0.1rem 0 var(--ink), 0.1rem 0.1rem 0 var(--ink), 0 0.14rem 0 var(--ink); }
+.rb-shop { --bg: linear-gradient(#8aff7a 0%, #3ad83a 55%, #1aa82a 100%); }
+.rb-rebirth { --bg: linear-gradient(#8ae8ff 0%, #3ab4ff 55%, #1a78e8 100%); }
+.rb-trails { --bg: linear-gradient(#f08aff 0%, #c43aff 55%, #8a1cd8 100%); }
+.rb-reward { --bg: linear-gradient(#ffd06a 0%, #ff8a1e 55%, #e84a14 100%); }
+.rbx::after { content: ''; position: absolute; inset: 0; border-radius: 0.55rem; background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.45) 50%, transparent 62%) no-repeat; background-size: 250% 100%; background-position: 160% 0; animation: tileShine 6s ease-in-out infinite; pointer-events: none; }
+.rb-rebirth::after { animation-delay: 0.3s; } .rb-trails::after { animation-delay: 0.6s; } .rb-reward::after { animation-delay: 0.9s; }
+@keyframes tileShine { 0%, 82% { background-position: 160% 0; } 100% { background-position: -60% 0; } }
+.rbx:hover { transform: translateY(-2px) scale(1.06); filter: brightness(1.07); }
+.rbx:hover .ic { transform: translateX(-50%) rotate(-8deg) scale(1.08); }
+.rbx:active { transform: translateY(2px) scale(0.93); transition-duration: 0.06s; }
+.rbx:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+#boost { grid-column: span 2; justify-self: start; display: flex; align-items: center; gap: 0.3rem; font-size: 1.05rem; font-weight: 700; color: var(--yellow); background: rgba(22, 18, 31, 0.55); border-radius: 0.6rem; padding: 0.1rem 0.6rem; font-variant-numeric: tabular-nums; }
+
+/* Top right: Starter Pack gift, settings and quick buttons, account chip, players online */
+#topRight { position: absolute; right: max(1rem, env(safe-area-inset-right, 0px)); top: calc(env(safe-area-inset-top, 0px) + 0.6rem); display: flex; align-items: flex-start; gap: 0.6rem; }
+#gift { position: relative; display: grid; justify-items: center; background: none; border: none; padding: 0; cursor: pointer; }
+#gift .gi { font-size: 2.9rem; line-height: 1; animation: giftBob 1.6s ease-in-out infinite; filter: drop-shadow(0 0.15rem 0 rgba(0, 0, 0, 0.35)); }
+#gift .gt { font-size: 1rem; font-weight: 700; color: #7dff6b; line-height: 1; margin-top: -0.1rem; }
+@keyframes giftBob { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg) scale(1.08); } }
+#btnSettings { display: grid; justify-items: center; background: none; border: none; padding: 0; }
+#btnSettings .gear { font-size: 2.5rem; line-height: 1; filter: grayscale(1) brightness(2.2) drop-shadow(0 0.15rem 0 rgba(0, 0, 0, 0.5)); transition: transform 0.4s ease; }
+#btnSettings:hover .gear { transform: rotate(90deg); }
+#btnSettings .gl { font-size: 0.85rem; font-weight: 700; line-height: 1; }
+#quickRow { position: absolute; right: max(1rem, env(safe-area-inset-right, 0px)); top: calc(env(safe-area-inset-top, 0px) + 5rem); display: flex; gap: 0.35rem; }
+.qb { position: relative; width: 2.7rem; height: 2.7rem; padding: 0.28rem; border: 0.18rem solid var(--ink); border-radius: 0.6rem; cursor: pointer; background: linear-gradient(#ffffff, #d8e2f2);
+    box-shadow: inset 0 -0.2rem 0 rgba(0, 0, 0, 0.12), 0 0.18rem 0 var(--ink); transition: transform 0.18s cubic-bezier(0.34, 1.8, 0.5, 1); }
+.qb svg { width: 100%; height: 100%; display: block; }
+.qb:hover { transform: translateY(-2px) scale(1.08); }
+.qb:active { transform: translateY(1px) scale(0.92); }
+.qb .badge { top: -0.45rem; right: -0.45rem; }
+#btnAuto.on { background: linear-gradient(#9cff8a, #28c43c); outline: 3px solid var(--white); }
+#acct { position: absolute; right: calc(max(1rem, env(safe-area-inset-right, 0px)) + 9rem); top: calc(env(safe-area-inset-top, 0px) + 0.9rem); display: flex; align-items: center; gap: 0.5rem; background: rgba(22, 18, 31, 0.6); border: 2px solid rgba(255, 255, 255, 0.25); border-radius: 2rem; padding: 0.2rem 0.3rem; max-width: 50vw; }
+#acctPfp { width: 2.2rem; height: 2.2rem; border-radius: 50%; object-fit: cover; background: #173a6e; }
+#acctName { font-size: 1.05rem; font-weight: 700; max-width: 11rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 0.3rem; }
+#acctBtn { font-size: 0.85rem; padding: 0.25rem 0.7rem; border-radius: 1rem; }
+#online { position: absolute; right: max(1rem, env(safe-area-inset-right, 0px)); top: calc(env(safe-area-inset-top, 0px) + 8.2rem); font-size: 1.05rem; font-weight: 700; background: rgba(22, 18, 31, 0.5); border-radius: 1rem; padding: 0.1rem 0.7rem; }
+#fps { position: absolute; right: max(1rem, env(safe-area-inset-right, 0px)); top: calc(env(safe-area-inset-top, 0px) + 10.2rem); font-size: 0.9rem; font-weight: 700; color: #7dff6b; font-variant-numeric: tabular-nums; }
+
+/* Right: Jump power box (pencil, input, MAX), "(Total boost)", rainbow x2 Power, rotating offer */
+#rightCol { position: absolute; right: max(1rem, env(safe-area-inset-right, 0px)); top: 52%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: stretch; gap: 0.25rem; width: 9.6rem; }
+#jpBox { display: grid; gap: 0.1rem; text-align: right; }
+#jpBox label { font-size: 1.25rem; font-weight: 700; }
+#jpBox .row { position: relative; background: rgba(255, 255, 255, 0.92); border: 0.18rem solid var(--ink); border-radius: 0.3rem; padding: 0.1rem 0.3rem; }
+#jpBox .pen { font-size: 1.8rem; position: absolute; left: -1.9rem; top: 50%; transform: translateY(-50%) rotate(-10deg); filter: drop-shadow(0 0.1rem 0 rgba(0, 0, 0, 0.35)); }
+#jpInput { width: 100%; min-width: 0; border: none; background: transparent; color: #28a83c; font: 700 1.75rem var(--font); text-align: center; -moz-appearance: textfield; outline: none; }
+#jpInput::-webkit-outer-spin-button, #jpInput::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+#jpBox small { font-size: 1rem; font-weight: 700; }
+#totalBoost { text-align: center; font-size: 1rem; font-weight: 700; color: #ff3c3c; margin-top: 0.4rem; }
+#btn2x { font-size: 1.75rem; padding: 0.25rem 0.4rem; border-radius: 0.3rem; }
+#rightCol .only { text-align: center; font-size: 1.1rem; font-weight: 700; margin-top: -0.05rem; }
+#offer { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.25rem; padding: 0.45rem 0.5rem; margin-top: 0.6rem; text-align: center; background: linear-gradient(#ff8a2a, #d8401c); border: 3px solid var(--ink); border-radius: 1rem; box-shadow: 0 0.25rem 0 var(--ink); overflow: hidden; animation: offerFloat 3.2s ease-in-out infinite; }
+#offer::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.35) 50%, transparent 65%); transform: translateX(-120%); animation: shine 3.5s ease-in-out infinite; pointer-events: none; }
+@keyframes shine { 0%, 55% { transform: translateX(-120%); } 85%, 100% { transform: translateX(120%); } }
+@keyframes offerFloat { 0%, 100% { translate: 0 0; } 50% { translate: 0 -0.2rem; } }
+#offer .ic { font-size: 2rem; line-height: 1; }
+#offer .tx { display: grid; line-height: 1.05; }
+#offer .tt { color: #fff; font-size: 1rem; font-weight: 700; }
+#offer .sub { font-size: 0.85rem; color: #fff3c8; font-variant-numeric: tabular-nums; }
+#offer .yn { display: flex; gap: 0.3rem; justify-content: center; }
+#offer .yes, #offer .no { font-size: 0.9rem; padding: 0.2rem 0.6rem; }
+
+/* Bottom centre: Jump Power, Total Power, Level bar and the +Power buttons */
+#bottom { position: absolute; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 0.8rem); transform: translateX(-50%); display: grid; justify-items: center; gap: 0.2rem; width: min(30rem, 66vw); pointer-events: none; }
+#jpTxt { font-size: 1.9rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+#totalTxt { font-size: 1.05rem; font-weight: 700; color: #c46aff; line-height: 1; font-variant-numeric: tabular-nums; margin-bottom: 0.2rem; }
+.bar { position: relative; width: 100%; overflow: hidden; }
+.bar .fill { position: absolute; inset: 0 auto 0 0; width: 0%; transition: width 0.15s linear; }
+.bar span { position: absolute; top: 50%; transform: translateY(-50%); font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+#levelBar { height: 2.2rem; background: rgba(255, 255, 255, 0.92); border: 0.18rem solid var(--ink); border-radius: 0.3rem; }
+#levelBar .fill { background: linear-gradient(#6ae0ff, #1aa8f0); }
+#levelBar .fill::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.22) 0 0.5rem, transparent 0.5rem 1rem); background-size: 2.3rem 100%; animation: stripes 1.2s linear infinite; }
+@keyframes stripes { to { background-position: 2.3rem 0; } }
+#levelTxt { left: 0.6rem; font-size: 1.35rem; }
+#xpTxt { right: 0.6rem; font-size: 1.35rem; }
+#powerBuys { display: flex; gap: 0.35rem; width: 100%; pointer-events: auto; margin-top: 0.25rem; }
+#powerBuys .btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.25rem; font-size: 1.1rem; padding: 0.25rem 0.3rem; border-radius: 0.35rem; white-space: nowrap; }
+
+#toasts { position: absolute; left: 50%; top: 47%; transform: translateX(-50%); display: grid; justify-items: center; gap: 0.3rem; pointer-events: none; }
+.toast { font-size: 1.45rem; font-weight: 700; white-space: nowrap; animation: toast 2.4s cubic-bezier(0.2, 1.4, 0.4, 1) forwards; }
+@keyframes toast { 0% { opacity: 0; transform: translateY(1rem) scale(0.7); } 10% { opacity: 1; transform: none; } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(-0.8rem); } }
+
+#promptBtn { position: absolute; transform: translate(-50%, -100%); display: flex; align-items: center; gap: 0.5rem; background: rgba(22, 18, 31, 0.8); border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 0.8rem; padding: 0.35rem 0.8rem 0.35rem 0.4rem; font-size: 1.1rem; font-weight: 600; white-space: nowrap; }
+#promptBtn kbd { font: 700 1rem var(--font); background: var(--white); color: var(--ink); border-radius: 0.4rem; padding: 0.1rem 0.5rem; text-shadow: none; }
+
+#flash { position: absolute; inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 55%, rgba(110, 220, 255, 0.45), rgba(110, 220, 255, 0) 60%); }
+#flash.show { animation: flash 0.7s ease-out; }
+@keyframes flash { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+#goalBanner { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); display: grid; justify-items: center; pointer-events: none; }
+#goalBanner .goal { font-size: clamp(3rem, 12vw, 7rem); font-weight: 700; line-height: 1; color: var(--yellow); letter-spacing: 0.02em; }
+#goalBanner .sub { font-size: 2.2rem; font-weight: 700; color: var(--green); }
+#goalBanner .rays { position: absolute; left: 50%; top: 50%; width: 36rem; height: 36rem; margin: -18rem 0 0 -18rem; border-radius: 50%; background: repeating-conic-gradient(rgba(255, 208, 40, 0.28) 0 10deg, transparent 10deg 20deg); mask-image: radial-gradient(circle, #000 20%, transparent 68%); -webkit-mask-image: radial-gradient(circle, #000 20%, transparent 68%); z-index: -1; }
+#goalBanner.show .goal { animation: goalIn 0.7s cubic-bezier(0.2, 1.6, 0.4, 1) both, goalOut 0.4s 2.2s ease-in forwards; }
+#goalBanner.show .sub { animation: subIn 0.5s 0.25s cubic-bezier(0.2, 1.5, 0.4, 1) both, goalOut 0.4s 2.2s ease-in forwards; }
+#goalBanner.show .rays { animation: spin 6s linear infinite, raysIn 0.6s ease-out both, goalOut 0.4s 2.2s ease-in forwards; }
+@keyframes goalIn { from { opacity: 0; transform: scale(3) rotate(-12deg); } }
+@keyframes subIn { from { opacity: 0; transform: translateY(1.5rem); } }
+@keyframes raysIn { from { opacity: 0; transform: scale(0.3); } }
+@keyframes goalOut { to { opacity: 0; transform: scale(0.85); } }
+@keyframes spin { to { rotate: 360deg; } }
+
+#tips { position: absolute; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 10.5rem); transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; gap: 0.35rem 1rem; max-width: min(40rem, 92vw); font-size: 1rem; font-weight: 600; color: #eaf6ff; background: rgba(22, 18, 31, 0.55); border-radius: 1rem; padding: 0.45rem 0.9rem; pointer-events: none; transition: opacity 0.8s ease; }
+#tips kbd { font: 700 0.85rem var(--font); background: var(--white); color: var(--ink); border-radius: 0.35rem; padding: 0.05rem 0.4rem; margin-right: 0.25rem; text-shadow: none; }
+
+/* Touch controls: joystick bottom-left, a big JUMP button bottom-right */
+#touch { position: absolute; inset: 0; pointer-events: none; }
+#stick { position: absolute; left: max(1.5rem, env(safe-area-inset-left, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5rem); width: 9rem; height: 9rem; border-radius: 50%; background: rgba(255, 255, 255, 0.12); border: 3px solid rgba(255, 255, 255, 0.35); pointer-events: auto; touch-action: none; }
+#knob { position: absolute; left: 50%; top: 50%; width: 3.8rem; height: 3.8rem; margin: -1.9rem 0 0 -1.9rem; border-radius: 50%; background: rgba(255, 255, 255, 0.55); border: 3px solid rgba(22, 18, 31, 0.6); }
+#jumpBtn { position: absolute; right: max(1.5rem, env(safe-area-inset-right, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 2rem); width: 6.4rem; height: 6.4rem; border-radius: 50%; pointer-events: auto; touch-action: none; font-size: 1.3rem; }
+
+/* Panels ----------------------------------------------------------------- */
+.overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(4, 16, 36, 0.45); padding: 1rem; }
+.overlay:not([hidden]) { animation: fadeIn 0.2s ease; }
+.overlay:not([hidden]) .panel, .overlay:not([hidden]) .card, .overlay:not([hidden]) .daily-pop { animation: popIn 0.34s cubic-bezier(0.2, 1.5, 0.4, 1); }
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes popIn { from { opacity: 0; transform: scale(0.8) translateY(1rem); } }
+.panel { width: min(34rem, 100%); max-height: min(34rem, 88vh); display: flex; flex-direction: column; background: var(--panel); border: 4px solid var(--ink); border-radius: 1.3rem; box-shadow: 0 0.4rem 0 var(--ink); overflow: hidden; }
+.panel header { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.7rem 0.6rem 1.1rem; background: linear-gradient(#2aa8e0, #1466b0); border-bottom: 4px solid var(--ink); }
+.panel h2 { margin: 0; font-size: 1.9rem; font-weight: 700; }
+.panel .x { width: 2.6rem; height: 2.6rem; font-size: 1.3rem; padding: 0; }
+.panel .body { padding: 0.9rem; overflow-y: auto; display: grid; gap: 0.6rem; }
+.row-card { display: grid; grid-template-columns: 3rem 1fr auto; align-items: center; gap: 0.7rem; background: var(--panel-2); border: 3px solid var(--ink); border-radius: 0.9rem; padding: 0.5rem 0.6rem; }
+.row-card .ic { font-size: 2rem; text-align: center; }
+.row-card .nm { font-size: 1.2rem; font-weight: 700; line-height: 1.1; }
+.row-card .ds { font-size: 0.9rem; color: #bfd8f5; }
+.row-card button { font-size: 1rem; padding: 0.4rem 0.8rem; min-width: 6.4rem; }
+.row-card button:disabled { filter: grayscale(0.8) brightness(0.8); cursor: default; }
+.row-card.on { border-color: var(--green); box-shadow: 0 0 0 3px rgba(70, 236, 80, 0.45); }
+.sec { font-size: 1.05rem; font-weight: 700; color: var(--yellow); letter-spacing: 0.04em; text-transform: uppercase; margin-top: 0.2rem; }
+.rebirth-box { display: grid; gap: 0.7rem; text-align: center; }
+.rebirth-box .big { font-size: 2.6rem; font-weight: 700; }
+.rebirth-box .mult { display: flex; justify-content: center; align-items: center; gap: 1rem; font-size: 1.6rem; font-weight: 700; }
+.rebirth-box p { margin: 0; font-size: 1rem; color: #cfe6ff; }
+.rebirth-box button { font-size: 1.5rem; padding: 0.6rem; }
+.row-card button:focus-visible, .seg .btn:focus-visible, .set-row input:focus-visible, .rebirth-box button:focus-visible { outline: 4px solid var(--yellow); outline-offset: 3px; }
+
+#buy .panel { width: min(24rem, 100%); }
+.buy-body { display: grid; gap: 0.8rem; justify-items: center; text-align: center; padding: 1.2rem 1rem 1rem; }
+.buy-body .item { font-size: 1.6rem; font-weight: 700; }
+.buy-body .cost { font-size: 1.3rem; font-weight: 700; color: #7dff6b; }
+.buy-body .note { font-size: 0.9rem; color: #bfd8f5; margin: 0; }
+.buy-body .acts { display: flex; gap: 0.7rem; width: 100%; }
+.buy-body .acts button { flex: 1; font-size: 1.25rem; padding: 0.55rem; }
+
+/* Bux coin */
+.bx { display: inline-block; width: 1em; height: 1em; margin-right: 0.18em; vertical-align: -0.12em; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff6b0 0 18%, #ffd23a 40%, #e79a0c 100%); box-shadow: inset 0 0 0 0.09em #b86f00, 0 0.06em 0 rgba(0, 0, 0, 0.35); position: relative; font-style: normal; }
+.bx::after { content: "B"; position: absolute; inset: 0; display: grid; place-items: center; font: 700 0.62em/1 var(--font); color: #9a5a00; text-shadow: none; }
+
+/* Start screen ------------------------------------------------------------ */
+#start { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 1rem; background: radial-gradient(ellipse at center, rgba(90, 200, 255, 0.4), rgba(20, 60, 140, 0.92)); }
+#loading { font-size: 1.3rem; font-weight: 700; }
+.loader { display: grid; justify-items: center; gap: 0.9rem; text-align: center; }
+.loader .logo { font-size: 3.4rem; font-weight: 700; line-height: 1; background: linear-gradient(#ffffff, #7fe8ff); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0.25rem 0 var(--ink)); }
+.loader-ball { font-size: 4rem; animation: hop 0.7s cubic-bezier(0.3, 0, 0.7, 1) infinite alternate; }
+@keyframes hop { from { transform: translateY(0) scaleY(0.85); } to { transform: translateY(-1.6rem) scaleY(1.05); } }
+#playBtn { font-size: 1.4rem; padding: 0.45rem 1.6rem; }
+.err { color: #ffb0b0; font-size: 1.05rem; font-weight: 600; max-width: 28rem; }
+
+.settings { display: grid; gap: 1rem; }
+.set-row { display: grid; grid-template-columns: 9rem 1fr; align-items: center; gap: 0.8rem; font-size: 1.15rem; font-weight: 700; }
+.set-row input[type=range] { width: 100%; accent-color: var(--green); height: 1.4rem; }
+.seg { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.seg .btn { font-size: 1rem; padding: 0.35rem 0.8rem; }
+.set-note { margin: 0; font-size: 0.9rem; color: #bfd8f5; }
+.invite-row { display: flex; gap: 0.5rem; }
+.invite-row input { flex: 1; min-width: 0; font: 600 0.9rem var(--font); border: 2px solid var(--ink); border-radius: 0.5rem; padding: 0.35rem 0.5rem; background: #f0f8ff; color: var(--ink); }
+.invite-row .btn { font-size: 0.95rem; padding: 0.35rem 0.8rem; }
+@media (max-width: 480px) { .set-row { grid-template-columns: 1fr; } }
+
+/* Cards: offline earnings */
+.card { position: relative; width: min(24rem, 100%); display: grid; gap: 0.5rem; justify-items: center; text-align: center; padding: 1.1rem 1.2rem 1.2rem; background: linear-gradient(#ffffff, #e4ecf6); color: var(--ink); border: 4px solid var(--ink); border-radius: 1.2rem; box-shadow: 0 0.4rem 0 var(--ink); }
+.card h2 { margin: 0; font-size: 2.4rem; color: #fff; }
+.card .keep { font-size: 1rem; font-weight: 600; color: #3a3a5a; }
+.card .big-ic { font-size: 3.4rem; }
+.card .gain { font-size: 2.4rem; font-weight: 700; color: #a84aff; }
+.card > .btn { font-size: 1.5rem; padding: 0.4rem 1.6rem; }
+
+/* Daily Reward */
+#daily { background: rgba(4, 16, 36, 0.6); }
+.daily-pop { position: relative; width: min(46rem, 100%); display: grid; justify-items: center; gap: 0.7rem; padding: 0.6rem 0.4rem 0.8rem; }
+.daily-pop h2 { margin: 0; font-size: 3.2rem; }
+.daily-pop .x { position: absolute; right: 0; top: 0.2rem; width: 3rem; height: 3rem; padding: 0; font-size: 1.4rem; border-radius: 0.8rem; }
+.daily-pop .cards { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; width: 100%; }
+.dcard { position: relative; aspect-ratio: 0.85; display: grid; place-items: center; align-content: center; gap: 0.1rem; background: linear-gradient(#ffffff, #dfe6f2); border: 3px solid var(--ink); border-radius: 0.8rem; box-shadow: 0 0.25rem 0 var(--ink); }
+.dcard .di { font-size: 2.6rem; line-height: 1; filter: drop-shadow(0 0.12rem 0 rgba(0, 0, 0, 0.3)); }
+.dcard .dr { font-size: 1.3rem; font-weight: 700; }
+.dcard.today { background: linear-gradient(#ffffff, #d8ffd0); box-shadow: 0 0 0 4px #46ec50, 0 0.25rem 0 var(--ink); transform: scale(1.06); }
+.dcard.done { filter: grayscale(0.6) brightness(0.85); }
+.dcard.done::after { content: "✔"; position: absolute; right: 0.3rem; top: 0.1rem; font-size: 1.3rem; color: #28a83c; text-shadow: none; }
+.daily-pop .track { position: relative; width: 92%; display: flex; justify-content: space-between; align-items: center; height: 2.6rem; }
+.daily-pop .track::before { content: ""; position: absolute; left: 0.6rem; right: 0.6rem; top: 0.55rem; height: 0.35rem; background: rgba(255, 255, 255, 0.45); border-radius: 1rem; }
+.daily-pop .dot { position: relative; display: grid; justify-items: center; gap: 0.25rem; font-size: 0.95rem; font-weight: 700; color: #e4ecff; }
+.daily-pop .dot i { width: 1.3rem; height: 1.3rem; border-radius: 50%; background: #9aa6c8; border: 3px solid var(--ink); }
+.daily-pop .dot.on i { background: #46ec50; }
+.daily-pop .dot.on { color: #fff; }
+.daily-pop .claim { font-size: 1.9rem; padding: 0.45rem 2.4rem; }
+.daily-pop .claim:disabled { filter: grayscale(0.8) brightness(0.85); }
+.daily-pop .left { font-size: 1.05rem; font-weight: 600; }
+
+/* Controller: button hints and a clear focus ring in menus */
+.pk { display: none; position: absolute; left: -0.5rem; top: -0.5rem; z-index: 2; min-width: 1.5rem; height: 1.5rem; padding: 0 0.3rem; border-radius: 0.75rem; background: #16121f; border: 2px solid #fff; color: #fff; font: 700 0.8rem/1.2rem var(--font); text-align: center; text-shadow: none; pointer-events: none; }
+body.pad .pk { display: block; }
+body.pad .overlay button:focus, body.pad .overlay input:focus { outline: 4px solid var(--yellow); outline-offset: 3px; transform: scale(1.05); }
+.pad-status { font-size: 1rem; color: #cfe6ff; }
+.pad-acts { display: flex; gap: 0.5rem; }
+.pad-acts .btn { font-size: 1rem; padding: 0.35rem 0.9rem; }
+.pad-setup { display: grid; gap: 0.4rem; justify-items: center; text-align: center; background: #102a5a; border: 3px solid var(--yellow); border-radius: 0.9rem; padding: 0.8rem; }
+.pad-setup .ps-step { font-size: 0.95rem; color: #bfd8f5; }
+.pad-setup .ps-text { font-size: 1.5rem; font-weight: 700; color: var(--yellow); }
+
+/* Phones and short screens */
+@media (max-width: 700px), (max-height: 460px) {
+    #leftCol { --tile: 3.9rem; top: 50%; }
+    .rbx .lb { font-size: 0.85rem; }
+    #winsBox b, #winsBox .cup { font-size: 1.7rem; }
+    #quest { font-size: 1.1rem; top: calc(env(safe-area-inset-top, 0px) + 3.6rem); padding: 0.2rem 2rem; }
+    #runInfo { font-size: 0.9rem; top: calc(env(safe-area-inset-top, 0px) + 5.6rem); }
+    #rightCol { width: 7.4rem; }
+    #jpBox label { font-size: 1rem; }
+    #jpInput { font-size: 1.3rem; }
+    #btn2x { font-size: 1.25rem; }
+    #offer { display: none !important; }
+    #jpTxt { font-size: 1.4rem; }
+    #powerBuys .btn { font-size: 0.85rem; }
+    #levelTxt, #xpTxt { font-size: 1.05rem; }
+    #levelBar { height: 1.8rem; }
+    .qb { width: 2.3rem; height: 2.3rem; }
+    #acctName { display: none; }
+    .dcard .di { font-size: 1.7rem; }
+    .dcard .dr { font-size: 0.85rem; }
+    .daily-pop h2 { font-size: 2.2rem; }
+    #gift .gi { font-size: 2.2rem; }
+    #btnSettings .gear { font-size: 2rem; }
+}
+body.touch #bottom { width: min(24rem, 52vw); }
+@media (max-width: 600px) { body.touch #bottom { bottom: calc(env(safe-area-inset-bottom, 0px) + 11.5rem); width: min(22rem, 80vw); } }
+body.touch #tips { bottom: calc(env(safe-area-inset-bottom, 0px) + 16rem); }
+@media (prefers-reduced-motion: reduce) {
+    .toast, #levelBanner.show { animation-duration: 0.01s; animation-delay: 0s; }
+    #offer, #offer::after, #levelBar .fill::after, #goalBanner .rays, .rbx::after, .g-rainbow, #gift .gi, .loader-ball { animation: none !important; }
+    .btn, .rbx .ic { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+    <canvas id="view" tabindex="0" aria-label="Game view"></canvas>
+    <canvas id="speedLines" aria-hidden="true"></canvas>
+
+    <div id="hud" hidden>
+
+        <!-- Top centre: the objective ("Follow the beam and bounce on Trampoline 1!") -->
+        <div id="quest" class="o passive">Follow the beam and bounce on Trampoline 1!</div>
+        <div id="runInfo" class="passive" hidden><span class="o1" id="runTxt"></span><div class="alt"><i id="altFill"></i><b id="altBest" title="Your best"></b></div></div>
+        <div id="record" class="passive" hidden><div class="rt o">NEW HEIGHT!</div><div class="rv o" id="recordVal">175 STUD</div></div>
+        <div id="levelBanner"><div class="a o" id="levelA">Level 0 &gt; Level 1</div><div class="b o" id="levelB">Jump Power 50 &gt; 52.5 (+2.5)</div></div>
+
+        <!-- Top right: Starter Pack, settings, quick buttons, account -->
+        <div id="topRight">
+            <button id="gift" aria-label="Starter Pack"><span class="gi" aria-hidden="true">🎁</span><span class="gt o1">Starter Pack</span></button>
+            <button class="o1" id="btnSettings" aria-label="Settings"><span class="gear" aria-hidden="true">⚙️</span><span class="gl o">SETTINGS</span></button>
+        </div>
+        <div id="acct" hidden>
+            <img id="acctPfp" alt="" hidden>
+            <span class="o1" id="acctName">Guest</span>
+            <button class="btn g-blue o1" id="acctBtn">Log in</button>
+        </div>
+        <div id="quickRow">
+            <button class="qb" id="btnDaily" aria-label="Daily reward" title="Daily Reward">
+                <svg viewBox="0 0 100 100" aria-hidden="true"><rect x="14" y="20" width="72" height="66" rx="8" fill="#fff" stroke="#16121f" stroke-width="6"/><path d="M14 28 Q14 20 22 20 L78 20 Q86 20 86 28 L86 40 L14 40 Z" fill="#e8304a" stroke="#16121f" stroke-width="6" stroke-linejoin="round"/><path d="M32 12 L32 28 M68 12 L68 28" stroke="#16121f" stroke-width="8" stroke-linecap="round"/><path d="M34 62 L45 72 L68 50" fill="none" stroke="#28c43c" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="badge" id="dailyBadge" hidden>!</span>
+            </button>
+            <button class="qb" id="btnFriends" aria-label="Friends" title="Friends">
+                <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="64" cy="34" r="14" fill="#ffb8d8" stroke="#16121f" stroke-width="6"/><path d="M42 84 Q42 56 64 56 Q86 56 86 84 Z" fill="#ff6ab0" stroke="#16121f" stroke-width="6" stroke-linejoin="round"/><circle cx="36" cy="40" r="15" fill="#fff" stroke="#16121f" stroke-width="6"/><path d="M12 90 Q12 62 36 62 Q60 62 60 90 Z" fill="#3a8cff" stroke="#16121f" stroke-width="6" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="qb" id="btnWardrobe" aria-label="Avatar" title="Avatar">
+                <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M36 14 Q50 26 64 14 L90 28 L80 48 L72 44 L72 88 L28 88 L28 44 L20 48 L10 28 Z" fill="#46ec50" stroke="#16121f" stroke-width="6" stroke-linejoin="round"/><path d="M36 14 Q50 26 64 14" fill="none" stroke="#16121f" stroke-width="6"/><path d="M30 60 L70 60" stroke="#22a83a" stroke-width="6"/></svg>
+            </button>
+            <button class="qb" id="btnAuto" aria-label="Auto Bounce" title="Auto Bounce: bounce on your best trampoline while AFK">
+                <svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="70" rx="40" ry="12" fill="#3a8cff" stroke="#16121f" stroke-width="6"/><path d="M18 74 L14 92 M82 74 L86 92 M50 82 L50 94" stroke="#16121f" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="30" r="14" fill="#ffd028" stroke="#16121f" stroke-width="6"/><path d="M50 48 L50 56 M38 8 L42 14 M62 8 L58 14" stroke="#16121f" stroke-width="6" stroke-linecap="round"/></svg>
+                <span class="pk">X</span>
+            </button>
+        </div>
+        <div id="online" class="o1 passive">👥 <b id="onlineVal">1</b></div>
+        <div id="fps" class="o1 passive" hidden>60 FPS</div>
+
+        <!-- Left: Wins, then SHOP / REBIRTH / TRAILS / REWARD and the boost timer -->
+        <div id="leftCol">
+            <div id="winsBox"><span class="cup" aria-hidden="true">🏆</span><b class="o" id="winsVal">0</b><button class="btn g-green o1" id="winsPlus" aria-label="Buy Wins">+</button></div>
+            <button class="rbx rb-shop" id="btnStore" aria-label="Shop">
+                <svg class="ic" viewBox="0 0 100 100" aria-hidden="true"><path d="M14 40 L86 40 L78 88 L22 88 Z" fill="#ff5a7a" stroke="#16121f" stroke-width="6" stroke-linejoin="round"/><path d="M32 40 Q32 12 50 12 Q68 12 68 40" fill="none" stroke="#16121f" stroke-width="7"/><path d="M22 52 L78 52" stroke="#ffb8c8" stroke-width="5"/><circle cx="50" cy="66" r="9" fill="#ffd028" stroke="#16121f" stroke-width="5"/></svg>
+                <span class="lb">SHOP</span><span class="pk">View</span>
+            </button>
+            <button class="rbx rb-rebirth" id="btnRebirth" aria-label="Rebirth">
+                <svg class="ic" viewBox="0 0 100 100" aria-hidden="true">
+                    <circle cx="50" cy="50" r="36" fill="#fff" stroke="#16121f" stroke-width="6"/>
+                    <path d="M14 50 A36 36 0 0 1 86 50 Z" fill="#e8304a" stroke="#16121f" stroke-width="6" stroke-linejoin="round"/>
+                    <path d="M14 50 L86 50" stroke="#16121f" stroke-width="7"/>
+                    <circle cx="50" cy="50" r="11" fill="#fff" stroke="#16121f" stroke-width="6"/>
+                    <path d="M28 32 Q34 24 44 22" fill="none" stroke="#ff9aa8" stroke-width="5" stroke-linecap="round"/>
+                </svg>
+                <span class="lb">REBIRTH</span><span class="badge" id="rebirthBadge" hidden>!</span><span class="pk">LB</span>
+            </button>
+            <button class="rbx rb-trails" id="btnTrails" aria-label="Trails">
+                <svg class="ic" viewBox="0 0 100 100" aria-hidden="true">
+                    <path d="M50 8 L82 30 L72 76 L28 76 L18 30 Z" fill="#c46aff" stroke="#16121f" stroke-width="6" stroke-linejoin="round"/>
+                    <path d="M50 8 L50 76 M18 30 L50 44 L82 30 M28 76 L50 44 L72 76" fill="none" stroke="#7a1ac8" stroke-width="4" stroke-linejoin="round"/>
+                    <path d="M30 26 L44 18" stroke="#f0d0ff" stroke-width="5" stroke-linecap="round"/>
+                    <path d="M20 88 Q50 80 80 88" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+                </svg>
+                <span class="lb">TRAILS</span><span class="pk">RB</span>
+            </button>
+            <button class="rbx rb-reward" id="btnReward" aria-label="Rewards">
+                <svg class="ic" viewBox="0 0 100 100" aria-hidden="true">
+                    <rect x="14" y="40" width="72" height="48" rx="6" fill="#e8304a" stroke="#16121f" stroke-width="6"/>
+                    <rect x="10" y="28" width="80" height="18" rx="5" fill="#ff5a6a" stroke="#16121f" stroke-width="6"/>
+                    <path d="M44 28 L44 88 M56 28 L56 88" stroke="#ffd028" stroke-width="7"/>
+                    <path d="M50 28 Q36 6 26 16 Q20 26 50 28 Q64 6 74 16 Q80 26 50 28 Z" fill="#ffd028" stroke="#16121f" stroke-width="5" stroke-linejoin="round"/>
+                </svg>
+                <span class="lb">REWARD</span><span class="badge" id="freeBadge" hidden>!</span><span class="pk">Y</span>
+            </button>
+            <div id="boost" class="o1 passive" hidden></div>
+        </div>
+
+        <!-- Right: Jump power box and the rainbow x2 Power pass -->
+        <div id="rightCol">
+            <div id="jpBox">
+                <label class="o" for="jpInput">Jump power</label>
+                <div class="row"><span class="pen" aria-hidden="true">✏️</span><input id="jpInput" type="number" inputmode="numeric" min="20" value="50"></div>
+                <small class="o1" id="maxJpTxt">MAX: 50</small>
+            </div>
+            <div id="totalBoost" class="o1">(Total boost) x1</div>
+            <button class="btn g-lime" id="btn2x"><span class="o">x2 Power</span></button>
+            <div class="only o1" id="price2x">ONLY <i class="bx" aria-hidden="true"></i>9!</div>
+            <div id="offer">
+                <span class="ic" id="offerIc">🎁</span>
+                <div class="tx"><span class="tt o1" id="offerTitle">STARTER PACK</span><span class="sub" id="offerSub">⏰ 15:00 · ONLY <i class="bx" aria-hidden="true"></i>19</span></div>
+                <div class="yn"><button class="btn g-green yes o1" id="offerYes">YES</button><button class="btn g-red no o1" id="offerNo">✕</button></div>
+            </div>
+        </div>
+
+        <div id="flash" class="passive" aria-hidden="true"></div>
+        <div id="goalBanner" class="passive" hidden><div class="rays"></div><div class="goal o" id="goalTitle">+1 WINS!</div><div class="sub o" id="goalSub">Back to the lobby</div></div>
+
+        <!-- Bottom centre: Jump Power, Total Power, Level bar, +Power buttons -->
+        <div id="bottom">
+            <div id="jpTxt" class="o passive">Jump Power: 50.0</div>
+            <div id="totalTxt" class="o1 passive">Total Power: 0</div>
+            <div class="bar passive" id="levelBar"><div class="fill" id="xpFill"></div><span class="o" id="levelTxt">Level 0</span><span class="o" id="xpTxt">0 / 50</span></div>
+            <div id="powerBuys">
+                <button class="btn g-orange o" data-slot="0">⚡+10K Power</button>
+                <button class="btn g-green o" data-slot="1">⚡+100K Power</button>
+                <button class="btn g-violet o" data-slot="2">⚡+1M Power</button>
+            </div>
+        </div>
+
+        <div id="tips" class="o1" hidden></div>
+        <div id="toasts"></div>
+        <button id="promptBtn" hidden><kbd>E</kbd><span id="promptTxt"></span></button>
+
+        <div id="touch" hidden>
+            <div id="stick"><div id="knob"></div></div>
+            <button class="btn g-green o" id="jumpBtn">JUMP</button>
+        </div>
+    </div>
+
+    <div id="modal" class="overlay" hidden>
+        <div class="panel" role="dialog" aria-labelledby="modalTitle">
+            <header><h2 class="o" id="modalTitle">Shop</h2><button class="btn g-red x o1" id="modalClose" aria-label="Close">✕</button></header>
+            <div class="body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <div id="buy" class="overlay" hidden>
+        <div class="panel" role="dialog" aria-labelledby="buyTitle">
+            <header><h2 class="o" id="buyTitle">Buy with Bux</h2></header>
+            <div class="buy-body">
+                <div class="item o1" id="buyItem">x2 Power</div>
+                <div class="cost o1" id="buyCost"><i class="bx" aria-hidden="true"></i>9 Bux</div>
+                <p class="note">Paid with Bux, the Bloxity currency. Free while this demo runs without a Bux catalog.</p>
+                <div class="acts"><button class="btn g-green o1" id="buyOk">Buy</button><button class="btn g-grey o1" id="buyCancel">Cancel</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Reward: seven cards, a day track and the claim button -->
+    <div id="daily" class="overlay" hidden>
+        <div class="daily-pop" role="dialog" aria-labelledby="dailyTitle">
+            <button class="btn g-red x o" id="dailyClose" aria-label="Close">✕</button>
+            <h2 class="o" id="dailyTitle">Daily Reward</h2>
+            <div class="cards" id="dailyCards"></div>
+            <div class="track" id="dailyTrack"></div>
+            <button class="btn g-green o claim" id="dailyClaim">CLAIM REWARD</button>
+            <div class="left o1" id="dailyLeft">Time left to claim: 23:59:59</div>
+        </div>
+    </div>
+
+    <!-- Trampoline earnings while offline -->
+    <div id="offlinePop" class="overlay" hidden>
+        <div class="card" role="dialog" aria-labelledby="offlineTitle2">
+            <h2 class="o" id="offlineTitle2">Welcome back!</h2>
+            <div class="big-ic" aria-hidden="true">🦘💤</div>
+            <div class="keep" id="offlineText">Your trampoline kept bouncing while you were away.</div>
+            <div class="gain o" id="offlineGain">+0 Power</div>
+            <button class="btn g-green o" id="offlineOk">Awesome!</button>
+        </div>
+    </div>
+
+    <div id="offline" class="overlay" hidden>
+        <div class="panel" role="alertdialog" aria-labelledby="offlineTitle">
+            <header style="background:linear-gradient(#ff5a5a,#b3122a)"><h2 class="o" id="offlineTitle">Disconnected</h2></header>
+            <div class="buy-body">
+                <div class="item o1">Lost connection to the server</div>
+                <p class="note">Your progress is saved on the server. Rejoin to keep playing.</p>
+                <div class="acts"><button class="btn g-green o1" id="reconnectBtn">Rejoin</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="start">
+        <div class="loader">
+            <div class="logo">+1 JUMP POGO</div>
+            <div class="loader-ball" aria-hidden="true">🦘</div>
+            <div id="loading" class="o1">Loading…</div>
+            <div class="err o1" id="connectErr" hidden></div>
+            <button class="btn g-green o" id="playBtn" hidden>Try again</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://sdk.bloxity.io/v1/legion-sdk.min.js"></script>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

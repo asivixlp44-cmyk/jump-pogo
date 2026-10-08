@@ -1,0 +1,11 @@
+node_modules/
+client/dist/
+server/data/
+server/run.log
+.env
+.vscode/
+.DS_Store
+Thumbs.db
+reference/*.mp4
+reference/bloxity-*
+store-art/

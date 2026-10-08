@@ -1,0 +1,8 @@
+**/node_modules
+client
+reference
+server/data
+server/run.log
+server/err.log
+.git
+.github
