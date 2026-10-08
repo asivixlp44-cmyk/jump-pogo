@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jump Pogo Setup</title>
+<style>
+:root { --bg: #f4f6fb; --card: #ffffff; --ink: #1b1d2a; --muted: #5d6478; --line: #e1e5ef; --accent: #2a7cff; --ok: #1e9e4a; --chip: #eef3ff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #12141c; --card: #1b1e29; --ink: #eef0f7; --muted: #a2a9bd; --line: #2c3142; --accent: #5aa0ff; --ok: #4cd37c; --chip: #23293a; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 1060px; margin: 0 auto; padding: 28px 16px 60px; }
+h1 { font-size: 28px; margin: 0 0 4px; }
+h2 { font-size: 19px; margin: 34px 0 10px; }
+p.sub { color: var(--muted); margin: 0 0 6px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 6px 16px; }
+.field { display: grid; grid-template-columns: 190px 1fr auto; gap: 12px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.field:last-child { border-bottom: none; }
+.label { color: var(--muted); font-weight: 600; padding-top: 2px; }
+.val { white-space: pre-wrap; word-break: break-word; }
+.mono, code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13.5px; }
+button.copy { border: 1px solid var(--line); background: var(--chip); color: var(--ink); border-radius: 8px; padding: 4px 10px; font: 600 13px system-ui, sans-serif; cursor: pointer; }
+button.copy:hover { border-color: var(--accent); }
+button.copy.done { color: var(--ok); border-color: var(--ok); }
+button.copy.sm { padding: 0 6px; margin-left: 6px; font-size: 12px; vertical-align: 1px; }
+.tablewrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+table { border-collapse: collapse; width: 100%; min-width: 760px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-size: 13px; font-weight: 600; background: var(--chip); }
+tr:last-child td { border-bottom: none; }
+ol.steps { padding-left: 20px; margin: 0; }
+ol.steps li { margin: 6px 0; }
+pre { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; overflow-x: auto; margin: 0; }
+.note { background: var(--chip); border-radius: 10px; padding: 10px 14px; color: var(--ink); margin-top: 10px; }
+@media (max-width: 640px) { .field { grid-template-columns: 1fr auto; } .label { grid-column: 1 / -1; } }
+</style>
+</head>
+<body>
+<main>
+    <h1>+1 Jump Pogo: Bloxity setup</h1>
+    <p class="sub">Everything to fill in on bloxity.io Manage Games and hosting.bloxity.io. Values come straight from <code>shared/config.js</code>, so they match the game exactly. Click Copy to copy a value.</p>
+
+    <h2>1. Game details (Manage Games)</h2>
+    <div class="card">
+        
+    <div class="field">
+        <div class="label">Game name</div>
+        <div class="val">+1 Jump Pogo</div>
+        <button class="copy" data-v="+1 Jump Pogo">Copy</button>
+    </div>
+        
+    <div class="field">
+        <div class="label">Slug</div>
+        <div class="val mono">jump-pogo</div>
+        <button class="copy" data-v="jump-pogo">Copy</button>
+    </div>
+        
+    <div class="field">
+        <div class="label">Short description</div>
+        <div class="val">Every bounce = +Power! Bounce up the giant Rainbow Stairs for Wins and unlock crazy pogos.</div>
+        <button class="copy" data-v="Every bounce = +Power! Bounce up the giant Rainbow Stairs for Wins and unlock crazy pogos.">Copy</button>
+    </div>
+        
+    <div class="field">
+        <div class="label">Description</div>
+        <div class="val area">Hop on your pogo stick and never stop bouncing! Every bounce gives you Power, Power levels you up, and every level adds +2.5 Jump Power. Bounce up the giant Rainbow Stairs out at sea (10, 25, 45 ... 3,549 STUD) and claim the Wins pad on every step. Spend Wins on 14 pogo skins up to x300 Power, train on trampolines up to x250, grab Power Gems, rebirth for bigger boosts and race your friends to the top of the leaderboards.</div>
+        <button class="copy" data-v="Hop on your pogo stick and never stop bouncing! Every bounce gives you Power, Power levels you up, and every level adds +2.5 Jump Power. Bounce up the giant Rainbow Stairs out at sea (10, 25, 45 ... 3,549 STUD) and claim the Wins pad on every step. Spend Wins on 14 pogo skins up to x300 Power, train on trampolines up to x250, grab Power Gems, rebirth for bigger boosts and race your friends to the top of the leaderboards.">Copy</button>
+    </div>
+        
+    <div class="field">
+        <div class="label">Genre</div>
+        <div class="val">Simulator</div>
+        <button class="copy" data-v="Simulator">Copy</button>
+    </div>
+        
+    <div class="field">
+        <div class="label">Tags</div>
+        <div class="val">pogo, simulator, obby, +1, jump, clicker, multiplayer, rainbow, casual</div>
+        <button class="copy" data-v="pogo, simulator, obby, +1, jump, clicker, multiplayer, rainbow, casual">Copy</button>
+    </div>
+        
+    <div class="field">
+        <div class="label">Max players / server</div>
+        <div class="val mono">24</div>
+        <button class="copy" data-v="24">Copy</button>
+    </div>
+        
+    <div class="field">
+        <div class="label">Controls</div>
+        <div class="val">WASD / arrows: move · Hold Space: big bounce · Drag: camera · Wheel: zoom · Controller and touch supported</div>
+        <button class="copy" data-v="WASD / arrows: move · Hold Space: big bounce · Drag: camera · Wheel: zoom · Controller and touch supported">Copy</button>
+    </div>
+        
+    <div class="field">
+        <div class="label">Play URL (prod)</div>
+        <div class="val mono">https://jump-pogo.play.bloxity.io</div>
+        <button class="copy" data-v="https://jump-pogo.play.bloxity.io">Copy</button>
+    </div>
+        
+    <div class="field">
+        <div class="label">Play URL (dev)</div>
+        <div class="val mono">https://jump-pogo.dev.play.bloxity.io</div>
+        <button class="copy" data-v="https://jump-pogo.dev.play.bloxity.io">Copy</button>
+    </div>
+    </div>
+    <div class="note">The slug must be exactly <code>jump-pogo</code>: the game's code (<code>client/src/bloxity.js</code>) and the hosting app id use it.</div>
+
+    <h2>2. In-app purchases (IAP catalog), 17 items</h2>
+    <p class="sub">Create each one with this SKU. The SKU must match exactly; the game looks items up by it. Prices are in Bux.</p>
+    <h2 style="font-size:16px;margin-top:14px">Products (10) — can be bought again</h2>
+    <div class="tablewrap"><table><thead><tr><th>SKU</th><th>Name</th><th>Type</th><th>Price (Bux)</th><th>Description</th></tr></thead><tbody><tr><td><span class="mono">power_10k</span><button class="copy sm" data-v="power_10k" aria-label="Copy power_10k">⧉</button></td><td><span class="">+10K Power</span><button class="copy sm" data-v="+10K Power" aria-label="Copy +10K Power">⧉</button></td><td>Consumable (product)</td><td><span class="mono">19</span><button class="copy sm" data-v="19" aria-label="Copy 19">⧉</button></td><td><span class="">Instantly adds 10,000 Power (counts as XP, so it levels you up and raises Jump Power).</span><button class="copy sm" data-v="Instantly adds 10,000 Power (counts as XP, so it levels you up and raises Jump Power)." aria-label="Copy Instantly adds 10,000 Power (counts as XP, so it levels you up and raises Jump Power).">⧉</button></td></tr><tr><td><span class="mono">power_100k</span><button class="copy sm" data-v="power_100k" aria-label="Copy power_100k">⧉</button></td><td><span class="">+100K Power</span><button class="copy sm" data-v="+100K Power" aria-label="Copy +100K Power">⧉</button></td><td>Consumable (product)</td><td><span class="mono">49</span><button class="copy sm" data-v="49" aria-label="Copy 49">⧉</button></td><td><span class="">Instantly adds 100,000 Power (counts as XP).</span><button class="copy sm" data-v="Instantly adds 100,000 Power (counts as XP)." aria-label="Copy Instantly adds 100,000 Power (counts as XP).">⧉</button></td></tr><tr><td><span class="mono">power_1m</span><button class="copy sm" data-v="power_1m" aria-label="Copy power_1m">⧉</button></td><td><span class="">+1M Power</span><button class="copy sm" data-v="+1M Power" aria-label="Copy +1M Power">⧉</button></td><td>Consumable (product)</td><td><span class="mono">99</span><button class="copy sm" data-v="99" aria-label="Copy 99">⧉</button></td><td><span class="">Instantly adds 1,000,000 Power (counts as XP).</span><button class="copy sm" data-v="Instantly adds 1,000,000 Power (counts as XP)." aria-label="Copy Instantly adds 1,000,000 Power (counts as XP).">⧉</button></td></tr><tr><td><span class="mono">power_10m</span><button class="copy sm" data-v="power_10m" aria-label="Copy power_10m">⧉</button></td><td><span class="">+10M Power</span><button class="copy sm" data-v="+10M Power" aria-label="Copy +10M Power">⧉</button></td><td>Consumable (product)</td><td><span class="mono">249</span><button class="copy sm" data-v="249" aria-label="Copy 249">⧉</button></td><td><span class="">Instantly adds 10,000,000 Power (counts as XP).</span><button class="copy sm" data-v="Instantly adds 10,000,000 Power (counts as XP)." aria-label="Copy Instantly adds 10,000,000 Power (counts as XP).">⧉</button></td></tr><tr><td><span class="mono">power_25m</span><button class="copy sm" data-v="power_25m" aria-label="Copy power_25m">⧉</button></td><td><span class="">+25M Power</span><button class="copy sm" data-v="+25M Power" aria-label="Copy +25M Power">⧉</button></td><td>Consumable (product)</td><td><span class="mono">449</span><button class="copy sm" data-v="449" aria-label="Copy 449">⧉</button></td><td><span class="">Instantly adds 25,000,000 Power (counts as XP).</span><button class="copy sm" data-v="Instantly adds 25,000,000 Power (counts as XP)." aria-label="Copy Instantly adds 25,000,000 Power (counts as XP).">⧉</button></td></tr><tr><td><span class="mono">level_5</span><button class="copy sm" data-v="level_5" aria-label="Copy level_5">⧉</button></td><td><span class="">+5 Levels</span><button class="copy sm" data-v="+5 Levels" aria-label="Copy +5 Levels">⧉</button></td><td>Consumable (product)</td><td><span class="mono">29</span><button class="copy sm" data-v="29" aria-label="Copy 29">⧉</button></td><td><span class="">Instantly gain 5 levels: +12.5 Jump Power.</span><button class="copy sm" data-v="Instantly gain 5 levels: +12.5 Jump Power." aria-label="Copy Instantly gain 5 levels: +12.5 Jump Power.">⧉</button></td></tr><tr><td><span class="mono">starter_pack</span><button class="copy sm" data-v="starter_pack" aria-label="Copy starter_pack">⧉</button></td><td><span class="">Starter Pack</span><button class="copy sm" data-v="Starter Pack" aria-label="Copy Starter Pack">⧉</button></td><td>Consumable (product)</td><td><span class="mono">19</span><button class="copy sm" data-v="19" aria-label="Copy 19">⧉</button></td><td><span class="">One-time starter bundle: +25,000 Power and +10 Wins.</span><button class="copy sm" data-v="One-time starter bundle: +25,000 Power and +10 Wins." aria-label="Copy One-time starter bundle: +25,000 Power and +10 Wins.">⧉</button></td></tr><tr><td><span class="mono">power_boost</span><button class="copy sm" data-v="power_boost" aria-label="Copy power_boost">⧉</button></td><td><span class="">x2 Power Boost (15 min)</span><button class="copy sm" data-v="x2 Power Boost (15 min)" aria-label="Copy x2 Power Boost (15 min)">⧉</button></td><td>Consumable (product)</td><td><span class="mono">49</span><button class="copy sm" data-v="49" aria-label="Copy 49">⧉</button></td><td><span class="">Doubles all Power you earn for 15 minutes. Stacks its time.</span><button class="copy sm" data-v="Doubles all Power you earn for 15 minutes. Stacks its time." aria-label="Copy Doubles all Power you earn for 15 minutes. Stacks its time.">⧉</button></td></tr><tr><td><span class="mono">wins_500</span><button class="copy sm" data-v="wins_500" aria-label="Copy wins_500">⧉</button></td><td><span class="">+500 Wins</span><button class="copy sm" data-v="+500 Wins" aria-label="Copy +500 Wins">⧉</button></td><td>Consumable (product)</td><td><span class="mono">99</span><button class="copy sm" data-v="99" aria-label="Copy 99">⧉</button></td><td><span class="">Adds 500 Wins to spend on better pogos.</span><button class="copy sm" data-v="Adds 500 Wins to spend on better pogos." aria-label="Copy Adds 500 Wins to spend on better pogos.">⧉</button></td></tr><tr><td><span class="mono">wins_5k</span><button class="copy sm" data-v="wins_5k" aria-label="Copy wins_5k">⧉</button></td><td><span class="">+5K Wins</span><button class="copy sm" data-v="+5K Wins" aria-label="Copy +5K Wins">⧉</button></td><td>Consumable (product)</td><td><span class="mono">399</span><button class="copy sm" data-v="399" aria-label="Copy 399">⧉</button></td><td><span class="">Adds 5,000 Wins to spend on better pogos.</span><button class="copy sm" data-v="Adds 5,000 Wins to spend on better pogos." aria-label="Copy Adds 5,000 Wins to spend on better pogos.">⧉</button></td></tr></tbody></table></div>
+    <h2 style="font-size:16px;margin-top:18px">Game passes (7) — bought once</h2>
+    <div class="tablewrap"><table><thead><tr><th>SKU</th><th>Name</th><th>Type</th><th>Price (Bux)</th><th>Description</th></tr></thead><tbody><tr><td><span class="mono">pass_double_power</span><button class="copy sm" data-v="pass_double_power" aria-label="Copy pass_double_power">⧉</button></td><td><span class="">x2 Power</span><button class="copy sm" data-v="x2 Power" aria-label="Copy x2 Power">⧉</button></td><td>One-time (game pass)</td><td><span class="mono">9</span><button class="copy sm" data-v="9" aria-label="Copy 9">⧉</button></td><td><span class="">Permanently doubles all Power you earn.</span><button class="copy sm" data-v="Permanently doubles all Power you earn." aria-label="Copy Permanently doubles all Power you earn.">⧉</button></td></tr><tr><td><span class="mono">pass_double_wins</span><button class="copy sm" data-v="pass_double_wins" aria-label="Copy pass_double_wins">⧉</button></td><td><span class="">x2 Wins</span><button class="copy sm" data-v="x2 Wins" aria-label="Copy x2 Wins">⧉</button></td><td>One-time (game pass)</td><td><span class="mono">99</span><button class="copy sm" data-v="99" aria-label="Copy 99">⧉</button></td><td><span class="">Permanently doubles the Wins from every Wins pad.</span><button class="copy sm" data-v="Permanently doubles the Wins from every Wins pad." aria-label="Copy Permanently doubles the Wins from every Wins pad.">⧉</button></td></tr><tr><td><span class="mono">pass_cute_pogo</span><button class="copy sm" data-v="pass_cute_pogo" aria-label="Copy pass_cute_pogo">⧉</button></td><td><span class="">Cute Pogo</span><button class="copy sm" data-v="Cute Pogo" aria-label="Copy Cute Pogo">⧉</button></td><td>One-time (game pass)</td><td><span class="mono">79</span><button class="copy sm" data-v="79" aria-label="Copy 79">⧉</button></td><td><span class="">Unlocks the Cute Pogo: x60 Power per bounce, with hearts.</span><button class="copy sm" data-v="Unlocks the Cute Pogo: x60 Power per bounce, with hearts." aria-label="Copy Unlocks the Cute Pogo: x60 Power per bounce, with hearts.">⧉</button></td></tr><tr><td><span class="mono">pass_galaxy_pogo</span><button class="copy sm" data-v="pass_galaxy_pogo" aria-label="Copy pass_galaxy_pogo">⧉</button></td><td><span class="">Galaxy Pogo</span><button class="copy sm" data-v="Galaxy Pogo" aria-label="Copy Galaxy Pogo">⧉</button></td><td>One-time (game pass)</td><td><span class="mono">249</span><button class="copy sm" data-v="249" aria-label="Copy 249">⧉</button></td><td><span class="">Unlocks the Galaxy Pogo: x150 Power per bounce, with stars.</span><button class="copy sm" data-v="Unlocks the Galaxy Pogo: x150 Power per bounce, with stars." aria-label="Copy Unlocks the Galaxy Pogo: x150 Power per bounce, with stars.">⧉</button></td></tr><tr><td><span class="mono">pass_admin_pogo</span><button class="copy sm" data-v="pass_admin_pogo" aria-label="Copy pass_admin_pogo">⧉</button></td><td><span class="">ADMIN Pogo</span><button class="copy sm" data-v="ADMIN Pogo" aria-label="Copy ADMIN Pogo">⧉</button></td><td>One-time (game pass)</td><td><span class="mono">399</span><button class="copy sm" data-v="399" aria-label="Copy 399">⧉</button></td><td><span class="">Unlocks the ADMIN Pogo: x300 Power per bounce.</span><button class="copy sm" data-v="Unlocks the ADMIN Pogo: x300 Power per bounce." aria-label="Copy Unlocks the ADMIN Pogo: x300 Power per bounce.">⧉</button></td></tr><tr><td><span class="mono">pass_admin_trampoline</span><button class="copy sm" data-v="pass_admin_trampoline" aria-label="Copy pass_admin_trampoline">⧉</button></td><td><span class="">ADMIN Trampoline</span><button class="copy sm" data-v="ADMIN Trampoline" aria-label="Copy ADMIN Trampoline">⧉</button></td><td>One-time (game pass)</td><td><span class="mono">299</span><button class="copy sm" data-v="299" aria-label="Copy 299">⧉</button></td><td><span class="">Unlocks the ADMIN trampoline: x250 Power per bounce on it.</span><button class="copy sm" data-v="Unlocks the ADMIN trampoline: x250 Power per bounce on it." aria-label="Copy Unlocks the ADMIN trampoline: x250 Power per bounce on it.">⧉</button></td></tr><tr><td><span class="mono">pass_rainbow_trail</span><button class="copy sm" data-v="pass_rainbow_trail" aria-label="Copy pass_rainbow_trail">⧉</button></td><td><span class="">Rainbow Trail</span><button class="copy sm" data-v="Rainbow Trail" aria-label="Copy Rainbow Trail">⧉</button></td><td>One-time (game pass)</td><td><span class="mono">99</span><button class="copy sm" data-v="99" aria-label="Copy 99">⧉</button></td><td><span class="">Unlocks the Rainbow Trail: x8 Power.</span><button class="copy sm" data-v="Unlocks the Rainbow Trail: x8 Power." aria-label="Copy Unlocks the Rainbow Trail: x8 Power.">⧉</button></td></tr></tbody></table></div>
+    <div class="note"><b>Starter Pack</b> is a product, but the server only grants it once per player. Without an IAP catalog the game runs in demo mode and purchases are free.</div>
+
+    <h2>3. Purchase webhook</h2>
+    <div class="card">
+        
+    <div class="field">
+        <div class="label">Webhook URL</div>
+        <div class="val mono">https://jump-pogo.host.bloxity.io/api/legion-webhook</div>
+        <button class="copy" data-v="https://jump-pogo.host.bloxity.io/api/legion-webhook">Copy</button>
+    </div>
+        
+    <div class="field">
+        <div class="label">Secret header</div>
+        <div class="val mono">x-legion-webhook-secret</div>
+        <button class="copy" data-v="x-legion-webhook-secret">Copy</button>
+    </div>
+        
+    <div class="field">
+        <div class="label">Secret value</div>
+        <div class="val">Make a long random string; use the same value for LEGION_WEBHOOK_SECRET below</div>
+        <button class="copy" data-v="Make a long random string; use the same value for LEGION_WEBHOOK_SECRET below">Copy</button>
+    </div>
+    </div>
+
+    <h2>4. Server environment (hosting.bloxity.io → app jump-pogo)</h2>
+    <div class="card">
+        
+    <div class="field">
+        <div class="label">App id</div>
+        <div class="val mono">jump-pogo</div>
+        <button class="copy" data-v="jump-pogo">Copy</button>
+    </div>
+        
+    <div class="field">
+        <div class="label">LEGION_WEBHOOK_SECRET</div>
+        <div class="val">Same secret as the webhook. Setting it switches the game from demo mode to real Bux.</div>
+        <button class="copy" data-v="Same secret as the webhook. Setting it switches the game from demo mode to real Bux.">Copy</button>
+    </div>
+        
+    <div class="field">
+        <div class="label">SAVE_SECRET</div>
+        <div class="val">Any long random string (signs players’ progress backups)</div>
+        <button class="copy" data-v="Any long random string (signs players’ progress backups)">Copy</button>
+    </div>
+        
+    <div class="field">
+        <div class="label">MONGODB_URI</div>
+        <div class="val">Provided by Legion automatically; progress is stored in MongoDB</div>
+        <button class="copy" data-v="Provided by Legion automatically; progress is stored in MongoDB">Copy</button>
+    </div>
+        
+    <div class="field">
+        <div class="label">BLOXITY_GAME_ID</div>
+        <div class="val">Optional: the game id, to report profile stats</div>
+        <button class="copy" data-v="Optional: the game id, to report profile stats">Copy</button>
+    </div>
+        
+    <div class="field">
+        <div class="label">BLOXITY_REPORT_TOKEN</div>
+        <div class="val">Optional: stats report token from Manage Games</div>
+        <button class="copy" data-v="Optional: stats report token from Manage Games">Copy</button>
+    </div>
+    </div>
+
+    <h2>5. Profile stats (optional)</h2>
+    <div class="tablewrap"><table><thead><tr><th>Key</th><th>Label</th><th>Type</th><th>Sort order</th></tr></thead><tbody>
+        <tr><td><span class="mono">top_power</span><button class="copy sm" data-v="top_power" aria-label="Copy top_power">⧉</button></td><td>Power</td><td>number</td><td>1</td></tr><tr><td><span class="mono">wins</span><button class="copy sm" data-v="wins" aria-label="Copy wins">⧉</button></td><td>Wins</td><td>number</td><td>2</td></tr><tr><td><span class="mono">rebirths</span><button class="copy sm" data-v="rebirths" aria-label="Copy rebirths">⧉</button></td><td>Rebirths</td><td>number</td><td>3</td></tr>
+    </tbody></table></div>
+
+    <h2>6. Order of steps</h2>
+    <div class="card" style="padding:14px 16px">
+        <ol class="steps">
+            <li>Create the app <code>jump-pogo</code> on hosting.bloxity.io and copy its deploy token.</li>
+            <li>Create the GitHub repo <code>asivixlp44-cmyk/jump-pogo</code> and add the secret <code>LEGION_DEPLOY_TOKEN</code>.</li>
+            <li>Push the code to <code>main</code>. GitHub Actions builds and deploys it.</li>
+            <li>After the first run: GitHub → Packages → <code>jump-pogo-server</code> → Change visibility → Public.</li>
+            <li>Create the game on bloxity.io Manage Games with the details in section 1.</li>
+            <li>Add the 17 IAP items from section 2.</li>
+            <li>Set the webhook (section 3) and the server env vars (section 4), then redeploy.</li>
+        </ol>
+    </div>
+
+    <h2>All IAP items as JSON</h2>
+    <p class="sub">For bulk import, if the catalog supports it. <button class="copy" data-v="[
+  {
+    &quot;sku&quot;: &quot;power_10k&quot;,
+    &quot;name&quot;: &quot;+10K Power&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 19,
+    &quot;description&quot;: &quot;Instantly adds 10,000 Power (counts as XP, so it levels you up and raises Jump Power).&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;power_100k&quot;,
+    &quot;name&quot;: &quot;+100K Power&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 49,
+    &quot;description&quot;: &quot;Instantly adds 100,000 Power (counts as XP).&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;power_1m&quot;,
+    &quot;name&quot;: &quot;+1M Power&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 99,
+    &quot;description&quot;: &quot;Instantly adds 1,000,000 Power (counts as XP).&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;power_10m&quot;,
+    &quot;name&quot;: &quot;+10M Power&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 249,
+    &quot;description&quot;: &quot;Instantly adds 10,000,000 Power (counts as XP).&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;power_25m&quot;,
+    &quot;name&quot;: &quot;+25M Power&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 449,
+    &quot;description&quot;: &quot;Instantly adds 25,000,000 Power (counts as XP).&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;level_5&quot;,
+    &quot;name&quot;: &quot;+5 Levels&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 29,
+    &quot;description&quot;: &quot;Instantly gain 5 levels: +12.5 Jump Power.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;starter_pack&quot;,
+    &quot;name&quot;: &quot;Starter Pack&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 19,
+    &quot;description&quot;: &quot;One-time starter bundle: +25,000 Power and +10 Wins.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;power_boost&quot;,
+    &quot;name&quot;: &quot;x2 Power Boost (15 min)&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 49,
+    &quot;description&quot;: &quot;Doubles all Power you earn for 15 minutes. Stacks its time.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;wins_500&quot;,
+    &quot;name&quot;: &quot;+500 Wins&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 99,
+    &quot;description&quot;: &quot;Adds 500 Wins to spend on better pogos.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;wins_5k&quot;,
+    &quot;name&quot;: &quot;+5K Wins&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 399,
+    &quot;description&quot;: &quot;Adds 5,000 Wins to spend on better pogos.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;pass_double_power&quot;,
+    &quot;name&quot;: &quot;x2 Power&quot;,
+    &quot;type&quot;: &quot;pass&quot;,
+    &quot;price&quot;: 9,
+    &quot;description&quot;: &quot;Permanently doubles all Power you earn.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;pass_double_wins&quot;,
+    &quot;name&quot;: &quot;x2 Wins&quot;,
+    &quot;type&quot;: &quot;pass&quot;,
+    &quot;price&quot;: 99,
+    &quot;description&quot;: &quot;Permanently doubles the Wins from every Wins pad.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;pass_cute_pogo&quot;,
+    &quot;name&quot;: &quot;Cute Pogo&quot;,
+    &quot;type&quot;: &quot;pass&quot;,
+    &quot;price&quot;: 79,
+    &quot;description&quot;: &quot;Unlocks the Cute Pogo: x60 Power per bounce, with hearts.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;pass_galaxy_pogo&quot;,
+    &quot;name&quot;: &quot;Galaxy Pogo&quot;,
+    &quot;type&quot;: &quot;pass&quot;,
+    &quot;price&quot;: 249,
+    &quot;description&quot;: &quot;Unlocks the Galaxy Pogo: x150 Power per bounce, with stars.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;pass_admin_pogo&quot;,
+    &quot;name&quot;: &quot;ADMIN Pogo&quot;,
+    &quot;type&quot;: &quot;pass&quot;,
+    &quot;price&quot;: 399,
+    &quot;description&quot;: &quot;Unlocks the ADMIN Pogo: x300 Power per bounce.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;pass_admin_trampoline&quot;,
+    &quot;name&quot;: &quot;ADMIN Trampoline&quot;,
+    &quot;type&quot;: &quot;pass&quot;,
+    &quot;price&quot;: 299,
+    &quot;description&quot;: &quot;Unlocks the ADMIN trampoline: x250 Power per bounce on it.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;pass_rainbow_trail&quot;,
+    &quot;name&quot;: &quot;Rainbow Trail&quot;,
+    &quot;type&quot;: &quot;pass&quot;,
+    &quot;price&quot;: 99,
+    &quot;description&quot;: &quot;Unlocks the Rainbow Trail: x8 Power.&quot;
+  }
+]">Copy JSON</button></p>
+    <pre class="mono">[
+  {
+    &quot;sku&quot;: &quot;power_10k&quot;,
+    &quot;name&quot;: &quot;+10K Power&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 19,
+    &quot;description&quot;: &quot;Instantly adds 10,000 Power (counts as XP, so it levels you up and raises Jump Power).&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;power_100k&quot;,
+    &quot;name&quot;: &quot;+100K Power&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 49,
+    &quot;description&quot;: &quot;Instantly adds 100,000 Power (counts as XP).&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;power_1m&quot;,
+    &quot;name&quot;: &quot;+1M Power&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 99,
+    &quot;description&quot;: &quot;Instantly adds 1,000,000 Power (counts as XP).&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;power_10m&quot;,
+    &quot;name&quot;: &quot;+10M Power&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 249,
+    &quot;description&quot;: &quot;Instantly adds 10,000,000 Power (counts as XP).&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;power_25m&quot;,
+    &quot;name&quot;: &quot;+25M Power&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 449,
+    &quot;description&quot;: &quot;Instantly adds 25,000,000 Power (counts as XP).&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;level_5&quot;,
+    &quot;name&quot;: &quot;+5 Levels&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 29,
+    &quot;description&quot;: &quot;Instantly gain 5 levels: +12.5 Jump Power.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;starter_pack&quot;,
+    &quot;name&quot;: &quot;Starter Pack&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 19,
+    &quot;description&quot;: &quot;One-time starter bundle: +25,000 Power and +10 Wins.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;power_boost&quot;,
+    &quot;name&quot;: &quot;x2 Power Boost (15 min)&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 49,
+    &quot;description&quot;: &quot;Doubles all Power you earn for 15 minutes. Stacks its time.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;wins_500&quot;,
+    &quot;name&quot;: &quot;+500 Wins&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 99,
+    &quot;description&quot;: &quot;Adds 500 Wins to spend on better pogos.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;wins_5k&quot;,
+    &quot;name&quot;: &quot;+5K Wins&quot;,
+    &quot;type&quot;: &quot;product&quot;,
+    &quot;price&quot;: 399,
+    &quot;description&quot;: &quot;Adds 5,000 Wins to spend on better pogos.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;pass_double_power&quot;,
+    &quot;name&quot;: &quot;x2 Power&quot;,
+    &quot;type&quot;: &quot;pass&quot;,
+    &quot;price&quot;: 9,
+    &quot;description&quot;: &quot;Permanently doubles all Power you earn.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;pass_double_wins&quot;,
+    &quot;name&quot;: &quot;x2 Wins&quot;,
+    &quot;type&quot;: &quot;pass&quot;,
+    &quot;price&quot;: 99,
+    &quot;description&quot;: &quot;Permanently doubles the Wins from every Wins pad.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;pass_cute_pogo&quot;,
+    &quot;name&quot;: &quot;Cute Pogo&quot;,
+    &quot;type&quot;: &quot;pass&quot;,
+    &quot;price&quot;: 79,
+    &quot;description&quot;: &quot;Unlocks the Cute Pogo: x60 Power per bounce, with hearts.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;pass_galaxy_pogo&quot;,
+    &quot;name&quot;: &quot;Galaxy Pogo&quot;,
+    &quot;type&quot;: &quot;pass&quot;,
+    &quot;price&quot;: 249,
+    &quot;description&quot;: &quot;Unlocks the Galaxy Pogo: x150 Power per bounce, with stars.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;pass_admin_pogo&quot;,
+    &quot;name&quot;: &quot;ADMIN Pogo&quot;,
+    &quot;type&quot;: &quot;pass&quot;,
+    &quot;price&quot;: 399,
+    &quot;description&quot;: &quot;Unlocks the ADMIN Pogo: x300 Power per bounce.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;pass_admin_trampoline&quot;,
+    &quot;name&quot;: &quot;ADMIN Trampoline&quot;,
+    &quot;type&quot;: &quot;pass&quot;,
+    &quot;price&quot;: 299,
+    &quot;description&quot;: &quot;Unlocks the ADMIN trampoline: x250 Power per bounce on it.&quot;
+  },
+  {
+    &quot;sku&quot;: &quot;pass_rainbow_trail&quot;,
+    &quot;name&quot;: &quot;Rainbow Trail&quot;,
+    &quot;type&quot;: &quot;pass&quot;,
+    &quot;price&quot;: 99,
+    &quot;description&quot;: &quot;Unlocks the Rainbow Trail: x8 Power.&quot;
+  }
+]</pre>
+</main>
+<script>
+document.addEventListener('click', async (e) => {
+    const b = e.target.closest('button.copy');
+    if (!b) return;
+    try { await navigator.clipboard.writeText(b.dataset.v); }
+    catch (err) { const t = document.createElement('textarea'); t.value = b.dataset.v; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+    const old = b.textContent; b.textContent = '✓'; b.classList.add('done');
+    setTimeout(() => { b.textContent = old; b.classList.remove('done'); }, 1200);
+});
+</script>
+</body>
+</html>
