@@ -39,6 +39,20 @@ td.why { color: var(--muted); }
 .shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; padding: 12px 0; }
 img { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
 .file { color: var(--muted); font-size: 12px; margin-top: 4px; word-break: break-all; }
+.iaps { display: grid; gap: 12px; }
+.iap { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+.iap.isdone { opacity: 0.5; border-color: var(--ok); }
+.iap-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+.iap-head .num { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+.iap-head .kind { color: var(--muted); font-size: 13px; }
+.done-box { margin-left: auto; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; gap: 6px; align-items: center; }
+.done-box input { width: 18px; height: 18px; accent-color: var(--ok); }
+.iap-row { display: grid; grid-template-columns: 110px 1fr auto; gap: 10px; align-items: center; padding: 6px 0; border-top: 1px solid var(--line); }
+.iap-row .k { color: var(--muted); font-weight: 600; font-size: 13px; }
+.iap-row .v { word-break: break-word; }
+button.copy.big { padding: 6px 16px; font-size: 14px; background: var(--accent); color: #fff; border-color: var(--accent); min-width: 78px; }
+button.copy.big.done { background: var(--ok); border-color: var(--ok); color: #fff; }
+.prog { font-weight: 700; color: var(--ok); }
 pre { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; overflow-x: auto; margin: 0; }
 .note { background: var(--chip); border-radius: 10px; padding: 10px 14px; margin-top: 10px; }
 ol.steps { padding-left: 20px; margin: 0; } ol.steps li { margin: 6px 0; }
@@ -140,11 +154,164 @@ jump-pogo.host.bloxity.io">Copy</button>
         <div class="val mono">https://jump-pogo.host.bloxity.io/api/legion-webhook</div>
         <button class="copy" data-v="https://jump-pogo.host.bloxity.io/api/legion-webhook">Copy</button>
     </div></div>
-    <p class="sub" style="margin-top:10px">Then click <b>+ Add IAP</b> once per row. The SKU must match exactly; the game finds each item by it. Prices are in Bux.</p>
+    <p class="sub" style="margin-top:10px">Then click <b>+ Add IAP</b> once per card below and copy its four values in. Tick <b>Added</b> when a card is done (remembered in this browser). <span id="progress" class="prog"></span> <button class="copy" id="resetDone">Reset ticks</button><br> The SKU must match exactly; the game finds each item by it. Prices are in Bux.</p>
     <h2 style="font-size:16px;margin-top:14px">Products (10) — can be bought again</h2>
-    <div class="tablewrap"><table><thead><tr><th>SKU</th><th>Name</th><th>Type</th><th>Price (Bux)</th><th>Description</th></tr></thead><tbody><tr><td><span class="mono">power_10k</span><button class="copy sm" data-v="power_10k" aria-label="Copy power_10k">⧉</button></td><td><span class="">+10K Power</span><button class="copy sm" data-v="+10K Power" aria-label="Copy +10K Power">⧉</button></td><td>Consumable (product)</td><td><span class="mono">19</span><button class="copy sm" data-v="19" aria-label="Copy 19">⧉</button></td><td><span class="">Instantly adds 10,000 Power (counts as XP, so it levels you up and raises Jump Power).</span><button class="copy sm" data-v="Instantly adds 10,000 Power (counts as XP, so it levels you up and raises Jump Power)." aria-label="Copy Instantly adds 10,000 Power (counts as XP, so it levels you up and raises Jump Power).">⧉</button></td></tr><tr><td><span class="mono">power_100k</span><button class="copy sm" data-v="power_100k" aria-label="Copy power_100k">⧉</button></td><td><span class="">+100K Power</span><button class="copy sm" data-v="+100K Power" aria-label="Copy +100K Power">⧉</button></td><td>Consumable (product)</td><td><span class="mono">49</span><button class="copy sm" data-v="49" aria-label="Copy 49">⧉</button></td><td><span class="">Instantly adds 100,000 Power (counts as XP).</span><button class="copy sm" data-v="Instantly adds 100,000 Power (counts as XP)." aria-label="Copy Instantly adds 100,000 Power (counts as XP).">⧉</button></td></tr><tr><td><span class="mono">power_1m</span><button class="copy sm" data-v="power_1m" aria-label="Copy power_1m">⧉</button></td><td><span class="">+1M Power</span><button class="copy sm" data-v="+1M Power" aria-label="Copy +1M Power">⧉</button></td><td>Consumable (product)</td><td><span class="mono">99</span><button class="copy sm" data-v="99" aria-label="Copy 99">⧉</button></td><td><span class="">Instantly adds 1,000,000 Power (counts as XP).</span><button class="copy sm" data-v="Instantly adds 1,000,000 Power (counts as XP)." aria-label="Copy Instantly adds 1,000,000 Power (counts as XP).">⧉</button></td></tr><tr><td><span class="mono">power_10m</span><button class="copy sm" data-v="power_10m" aria-label="Copy power_10m">⧉</button></td><td><span class="">+10M Power</span><button class="copy sm" data-v="+10M Power" aria-label="Copy +10M Power">⧉</button></td><td>Consumable (product)</td><td><span class="mono">249</span><button class="copy sm" data-v="249" aria-label="Copy 249">⧉</button></td><td><span class="">Instantly adds 10,000,000 Power (counts as XP).</span><button class="copy sm" data-v="Instantly adds 10,000,000 Power (counts as XP)." aria-label="Copy Instantly adds 10,000,000 Power (counts as XP).">⧉</button></td></tr><tr><td><span class="mono">power_25m</span><button class="copy sm" data-v="power_25m" aria-label="Copy power_25m">⧉</button></td><td><span class="">+25M Power</span><button class="copy sm" data-v="+25M Power" aria-label="Copy +25M Power">⧉</button></td><td>Consumable (product)</td><td><span class="mono">449</span><button class="copy sm" data-v="449" aria-label="Copy 449">⧉</button></td><td><span class="">Instantly adds 25,000,000 Power (counts as XP).</span><button class="copy sm" data-v="Instantly adds 25,000,000 Power (counts as XP)." aria-label="Copy Instantly adds 25,000,000 Power (counts as XP).">⧉</button></td></tr><tr><td><span class="mono">level_5</span><button class="copy sm" data-v="level_5" aria-label="Copy level_5">⧉</button></td><td><span class="">+5 Levels</span><button class="copy sm" data-v="+5 Levels" aria-label="Copy +5 Levels">⧉</button></td><td>Consumable (product)</td><td><span class="mono">29</span><button class="copy sm" data-v="29" aria-label="Copy 29">⧉</button></td><td><span class="">Instantly gain 5 levels: +12.5 Jump Power.</span><button class="copy sm" data-v="Instantly gain 5 levels: +12.5 Jump Power." aria-label="Copy Instantly gain 5 levels: +12.5 Jump Power.">⧉</button></td></tr><tr><td><span class="mono">starter_pack</span><button class="copy sm" data-v="starter_pack" aria-label="Copy starter_pack">⧉</button></td><td><span class="">Starter Pack</span><button class="copy sm" data-v="Starter Pack" aria-label="Copy Starter Pack">⧉</button></td><td>Consumable (product)</td><td><span class="mono">19</span><button class="copy sm" data-v="19" aria-label="Copy 19">⧉</button></td><td><span class="">One-time starter bundle: +25,000 Power and +10 Wins.</span><button class="copy sm" data-v="One-time starter bundle: +25,000 Power and +10 Wins." aria-label="Copy One-time starter bundle: +25,000 Power and +10 Wins.">⧉</button></td></tr><tr><td><span class="mono">power_boost</span><button class="copy sm" data-v="power_boost" aria-label="Copy power_boost">⧉</button></td><td><span class="">x2 Power Boost (15 min)</span><button class="copy sm" data-v="x2 Power Boost (15 min)" aria-label="Copy x2 Power Boost (15 min)">⧉</button></td><td>Consumable (product)</td><td><span class="mono">49</span><button class="copy sm" data-v="49" aria-label="Copy 49">⧉</button></td><td><span class="">Doubles all Power you earn for 15 minutes. Stacks its time.</span><button class="copy sm" data-v="Doubles all Power you earn for 15 minutes. Stacks its time." aria-label="Copy Doubles all Power you earn for 15 minutes. Stacks its time.">⧉</button></td></tr><tr><td><span class="mono">wins_500</span><button class="copy sm" data-v="wins_500" aria-label="Copy wins_500">⧉</button></td><td><span class="">+500 Wins</span><button class="copy sm" data-v="+500 Wins" aria-label="Copy +500 Wins">⧉</button></td><td>Consumable (product)</td><td><span class="mono">99</span><button class="copy sm" data-v="99" aria-label="Copy 99">⧉</button></td><td><span class="">Adds 500 Wins to spend on better pogos.</span><button class="copy sm" data-v="Adds 500 Wins to spend on better pogos." aria-label="Copy Adds 500 Wins to spend on better pogos.">⧉</button></td></tr><tr><td><span class="mono">wins_5k</span><button class="copy sm" data-v="wins_5k" aria-label="Copy wins_5k">⧉</button></td><td><span class="">+5K Wins</span><button class="copy sm" data-v="+5K Wins" aria-label="Copy +5K Wins">⧉</button></td><td>Consumable (product)</td><td><span class="mono">399</span><button class="copy sm" data-v="399" aria-label="Copy 399">⧉</button></td><td><span class="">Adds 5,000 Wins to spend on better pogos.</span><button class="copy sm" data-v="Adds 5,000 Wins to spend on better pogos." aria-label="Copy Adds 5,000 Wins to spend on better pogos.">⧉</button></td></tr></tbody></table></div>
+    <div class="iaps">
+    <div class="iap" data-sku="power_10k">
+        <div class="iap-head"><span class="num">1</span><b>+10K Power</b><span class="kind">Consumable (product)</span>
+            <label class="done-box"><input type="checkbox" class="done-chk"> Added</label></div>
+        
+        <div class="iap-row"><span class="k">SKU</span><span class="v mono">power_10k</span><button class="copy big" data-v="power_10k">Copy</button></div>
+        <div class="iap-row"><span class="k">Name</span><span class="v">+10K Power</span><button class="copy big" data-v="+10K Power">Copy</button></div>
+        <div class="iap-row"><span class="k">Price (Bux)</span><span class="v mono">19</span><button class="copy big" data-v="19">Copy</button></div>
+        <div class="iap-row"><span class="k">Description</span><span class="v">Instantly adds 10,000 Power (counts as XP, so it levels you up and raises Jump Power).</span><button class="copy big" data-v="Instantly adds 10,000 Power (counts as XP, so it levels you up and raises Jump Power).">Copy</button></div>
+    </div>
+    <div class="iap" data-sku="power_100k">
+        <div class="iap-head"><span class="num">2</span><b>+100K Power</b><span class="kind">Consumable (product)</span>
+            <label class="done-box"><input type="checkbox" class="done-chk"> Added</label></div>
+        
+        <div class="iap-row"><span class="k">SKU</span><span class="v mono">power_100k</span><button class="copy big" data-v="power_100k">Copy</button></div>
+        <div class="iap-row"><span class="k">Name</span><span class="v">+100K Power</span><button class="copy big" data-v="+100K Power">Copy</button></div>
+        <div class="iap-row"><span class="k">Price (Bux)</span><span class="v mono">49</span><button class="copy big" data-v="49">Copy</button></div>
+        <div class="iap-row"><span class="k">Description</span><span class="v">Instantly adds 100,000 Power (counts as XP).</span><button class="copy big" data-v="Instantly adds 100,000 Power (counts as XP).">Copy</button></div>
+    </div>
+    <div class="iap" data-sku="power_1m">
+        <div class="iap-head"><span class="num">3</span><b>+1M Power</b><span class="kind">Consumable (product)</span>
+            <label class="done-box"><input type="checkbox" class="done-chk"> Added</label></div>
+        
+        <div class="iap-row"><span class="k">SKU</span><span class="v mono">power_1m</span><button class="copy big" data-v="power_1m">Copy</button></div>
+        <div class="iap-row"><span class="k">Name</span><span class="v">+1M Power</span><button class="copy big" data-v="+1M Power">Copy</button></div>
+        <div class="iap-row"><span class="k">Price (Bux)</span><span class="v mono">99</span><button class="copy big" data-v="99">Copy</button></div>
+        <div class="iap-row"><span class="k">Description</span><span class="v">Instantly adds 1,000,000 Power (counts as XP).</span><button class="copy big" data-v="Instantly adds 1,000,000 Power (counts as XP).">Copy</button></div>
+    </div>
+    <div class="iap" data-sku="power_10m">
+        <div class="iap-head"><span class="num">4</span><b>+10M Power</b><span class="kind">Consumable (product)</span>
+            <label class="done-box"><input type="checkbox" class="done-chk"> Added</label></div>
+        
+        <div class="iap-row"><span class="k">SKU</span><span class="v mono">power_10m</span><button class="copy big" data-v="power_10m">Copy</button></div>
+        <div class="iap-row"><span class="k">Name</span><span class="v">+10M Power</span><button class="copy big" data-v="+10M Power">Copy</button></div>
+        <div class="iap-row"><span class="k">Price (Bux)</span><span class="v mono">249</span><button class="copy big" data-v="249">Copy</button></div>
+        <div class="iap-row"><span class="k">Description</span><span class="v">Instantly adds 10,000,000 Power (counts as XP).</span><button class="copy big" data-v="Instantly adds 10,000,000 Power (counts as XP).">Copy</button></div>
+    </div>
+    <div class="iap" data-sku="power_25m">
+        <div class="iap-head"><span class="num">5</span><b>+25M Power</b><span class="kind">Consumable (product)</span>
+            <label class="done-box"><input type="checkbox" class="done-chk"> Added</label></div>
+        
+        <div class="iap-row"><span class="k">SKU</span><span class="v mono">power_25m</span><button class="copy big" data-v="power_25m">Copy</button></div>
+        <div class="iap-row"><span class="k">Name</span><span class="v">+25M Power</span><button class="copy big" data-v="+25M Power">Copy</button></div>
+        <div class="iap-row"><span class="k">Price (Bux)</span><span class="v mono">449</span><button class="copy big" data-v="449">Copy</button></div>
+        <div class="iap-row"><span class="k">Description</span><span class="v">Instantly adds 25,000,000 Power (counts as XP).</span><button class="copy big" data-v="Instantly adds 25,000,000 Power (counts as XP).">Copy</button></div>
+    </div>
+    <div class="iap" data-sku="level_5">
+        <div class="iap-head"><span class="num">6</span><b>+5 Levels</b><span class="kind">Consumable (product)</span>
+            <label class="done-box"><input type="checkbox" class="done-chk"> Added</label></div>
+        
+        <div class="iap-row"><span class="k">SKU</span><span class="v mono">level_5</span><button class="copy big" data-v="level_5">Copy</button></div>
+        <div class="iap-row"><span class="k">Name</span><span class="v">+5 Levels</span><button class="copy big" data-v="+5 Levels">Copy</button></div>
+        <div class="iap-row"><span class="k">Price (Bux)</span><span class="v mono">29</span><button class="copy big" data-v="29">Copy</button></div>
+        <div class="iap-row"><span class="k">Description</span><span class="v">Instantly gain 5 levels: +12.5 Jump Power.</span><button class="copy big" data-v="Instantly gain 5 levels: +12.5 Jump Power.">Copy</button></div>
+    </div>
+    <div class="iap" data-sku="starter_pack">
+        <div class="iap-head"><span class="num">7</span><b>Starter Pack</b><span class="kind">Consumable (product)</span>
+            <label class="done-box"><input type="checkbox" class="done-chk"> Added</label></div>
+        
+        <div class="iap-row"><span class="k">SKU</span><span class="v mono">starter_pack</span><button class="copy big" data-v="starter_pack">Copy</button></div>
+        <div class="iap-row"><span class="k">Name</span><span class="v">Starter Pack</span><button class="copy big" data-v="Starter Pack">Copy</button></div>
+        <div class="iap-row"><span class="k">Price (Bux)</span><span class="v mono">19</span><button class="copy big" data-v="19">Copy</button></div>
+        <div class="iap-row"><span class="k">Description</span><span class="v">One-time starter bundle: +25,000 Power and +10 Wins.</span><button class="copy big" data-v="One-time starter bundle: +25,000 Power and +10 Wins.">Copy</button></div>
+    </div>
+    <div class="iap" data-sku="power_boost">
+        <div class="iap-head"><span class="num">8</span><b>x2 Power Boost (15 min)</b><span class="kind">Consumable (product)</span>
+            <label class="done-box"><input type="checkbox" class="done-chk"> Added</label></div>
+        
+        <div class="iap-row"><span class="k">SKU</span><span class="v mono">power_boost</span><button class="copy big" data-v="power_boost">Copy</button></div>
+        <div class="iap-row"><span class="k">Name</span><span class="v">x2 Power Boost (15 min)</span><button class="copy big" data-v="x2 Power Boost (15 min)">Copy</button></div>
+        <div class="iap-row"><span class="k">Price (Bux)</span><span class="v mono">49</span><button class="copy big" data-v="49">Copy</button></div>
+        <div class="iap-row"><span class="k">Description</span><span class="v">Doubles all Power you earn for 15 minutes. Stacks its time.</span><button class="copy big" data-v="Doubles all Power you earn for 15 minutes. Stacks its time.">Copy</button></div>
+    </div>
+    <div class="iap" data-sku="wins_500">
+        <div class="iap-head"><span class="num">9</span><b>+500 Wins</b><span class="kind">Consumable (product)</span>
+            <label class="done-box"><input type="checkbox" class="done-chk"> Added</label></div>
+        
+        <div class="iap-row"><span class="k">SKU</span><span class="v mono">wins_500</span><button class="copy big" data-v="wins_500">Copy</button></div>
+        <div class="iap-row"><span class="k">Name</span><span class="v">+500 Wins</span><button class="copy big" data-v="+500 Wins">Copy</button></div>
+        <div class="iap-row"><span class="k">Price (Bux)</span><span class="v mono">99</span><button class="copy big" data-v="99">Copy</button></div>
+        <div class="iap-row"><span class="k">Description</span><span class="v">Adds 500 Wins to spend on better pogos.</span><button class="copy big" data-v="Adds 500 Wins to spend on better pogos.">Copy</button></div>
+    </div>
+    <div class="iap" data-sku="wins_5k">
+        <div class="iap-head"><span class="num">10</span><b>+5K Wins</b><span class="kind">Consumable (product)</span>
+            <label class="done-box"><input type="checkbox" class="done-chk"> Added</label></div>
+        
+        <div class="iap-row"><span class="k">SKU</span><span class="v mono">wins_5k</span><button class="copy big" data-v="wins_5k">Copy</button></div>
+        <div class="iap-row"><span class="k">Name</span><span class="v">+5K Wins</span><button class="copy big" data-v="+5K Wins">Copy</button></div>
+        <div class="iap-row"><span class="k">Price (Bux)</span><span class="v mono">399</span><button class="copy big" data-v="399">Copy</button></div>
+        <div class="iap-row"><span class="k">Description</span><span class="v">Adds 5,000 Wins to spend on better pogos.</span><button class="copy big" data-v="Adds 5,000 Wins to spend on better pogos.">Copy</button></div>
+    </div></div>
     <h2 style="font-size:16px;margin-top:18px">Game passes (7) — bought once</h2>
-    <div class="tablewrap"><table><thead><tr><th>SKU</th><th>Name</th><th>Type</th><th>Price (Bux)</th><th>Description</th></tr></thead><tbody><tr><td><span class="mono">pass_double_power</span><button class="copy sm" data-v="pass_double_power" aria-label="Copy pass_double_power">⧉</button></td><td><span class="">x2 Power</span><button class="copy sm" data-v="x2 Power" aria-label="Copy x2 Power">⧉</button></td><td>One-time (game pass)</td><td><span class="mono">9</span><button class="copy sm" data-v="9" aria-label="Copy 9">⧉</button></td><td><span class="">Permanently doubles all Power you earn.</span><button class="copy sm" data-v="Permanently doubles all Power you earn." aria-label="Copy Permanently doubles all Power you earn.">⧉</button></td></tr><tr><td><span class="mono">pass_double_wins</span><button class="copy sm" data-v="pass_double_wins" aria-label="Copy pass_double_wins">⧉</button></td><td><span class="">x2 Wins</span><button class="copy sm" data-v="x2 Wins" aria-label="Copy x2 Wins">⧉</button></td><td>One-time (game pass)</td><td><span class="mono">99</span><button class="copy sm" data-v="99" aria-label="Copy 99">⧉</button></td><td><span class="">Permanently doubles the Wins from every Wins pad.</span><button class="copy sm" data-v="Permanently doubles the Wins from every Wins pad." aria-label="Copy Permanently doubles the Wins from every Wins pad.">⧉</button></td></tr><tr><td><span class="mono">pass_cute_pogo</span><button class="copy sm" data-v="pass_cute_pogo" aria-label="Copy pass_cute_pogo">⧉</button></td><td><span class="">Cute Pogo</span><button class="copy sm" data-v="Cute Pogo" aria-label="Copy Cute Pogo">⧉</button></td><td>One-time (game pass)</td><td><span class="mono">79</span><button class="copy sm" data-v="79" aria-label="Copy 79">⧉</button></td><td><span class="">Unlocks the Cute Pogo: x60 Power per bounce, with hearts.</span><button class="copy sm" data-v="Unlocks the Cute Pogo: x60 Power per bounce, with hearts." aria-label="Copy Unlocks the Cute Pogo: x60 Power per bounce, with hearts.">⧉</button></td></tr><tr><td><span class="mono">pass_galaxy_pogo</span><button class="copy sm" data-v="pass_galaxy_pogo" aria-label="Copy pass_galaxy_pogo">⧉</button></td><td><span class="">Galaxy Pogo</span><button class="copy sm" data-v="Galaxy Pogo" aria-label="Copy Galaxy Pogo">⧉</button></td><td>One-time (game pass)</td><td><span class="mono">249</span><button class="copy sm" data-v="249" aria-label="Copy 249">⧉</button></td><td><span class="">Unlocks the Galaxy Pogo: x150 Power per bounce, with stars.</span><button class="copy sm" data-v="Unlocks the Galaxy Pogo: x150 Power per bounce, with stars." aria-label="Copy Unlocks the Galaxy Pogo: x150 Power per bounce, with stars.">⧉</button></td></tr><tr><td><span class="mono">pass_admin_pogo</span><button class="copy sm" data-v="pass_admin_pogo" aria-label="Copy pass_admin_pogo">⧉</button></td><td><span class="">ADMIN Pogo</span><button class="copy sm" data-v="ADMIN Pogo" aria-label="Copy ADMIN Pogo">⧉</button></td><td>One-time (game pass)</td><td><span class="mono">399</span><button class="copy sm" data-v="399" aria-label="Copy 399">⧉</button></td><td><span class="">Unlocks the ADMIN Pogo: x300 Power per bounce.</span><button class="copy sm" data-v="Unlocks the ADMIN Pogo: x300 Power per bounce." aria-label="Copy Unlocks the ADMIN Pogo: x300 Power per bounce.">⧉</button></td></tr><tr><td><span class="mono">pass_admin_trampoline</span><button class="copy sm" data-v="pass_admin_trampoline" aria-label="Copy pass_admin_trampoline">⧉</button></td><td><span class="">ADMIN Trampoline</span><button class="copy sm" data-v="ADMIN Trampoline" aria-label="Copy ADMIN Trampoline">⧉</button></td><td>One-time (game pass)</td><td><span class="mono">299</span><button class="copy sm" data-v="299" aria-label="Copy 299">⧉</button></td><td><span class="">Unlocks the ADMIN trampoline: x250 Power per bounce on it.</span><button class="copy sm" data-v="Unlocks the ADMIN trampoline: x250 Power per bounce on it." aria-label="Copy Unlocks the ADMIN trampoline: x250 Power per bounce on it.">⧉</button></td></tr><tr><td><span class="mono">pass_rainbow_trail</span><button class="copy sm" data-v="pass_rainbow_trail" aria-label="Copy pass_rainbow_trail">⧉</button></td><td><span class="">Rainbow Trail</span><button class="copy sm" data-v="Rainbow Trail" aria-label="Copy Rainbow Trail">⧉</button></td><td>One-time (game pass)</td><td><span class="mono">99</span><button class="copy sm" data-v="99" aria-label="Copy 99">⧉</button></td><td><span class="">Unlocks the Rainbow Trail: x8 Power.</span><button class="copy sm" data-v="Unlocks the Rainbow Trail: x8 Power." aria-label="Copy Unlocks the Rainbow Trail: x8 Power.">⧉</button></td></tr></tbody></table></div>
+    <div class="iaps">
+    <div class="iap" data-sku="pass_double_power">
+        <div class="iap-head"><span class="num">11</span><b>x2 Power</b><span class="kind">One-time (game pass)</span>
+            <label class="done-box"><input type="checkbox" class="done-chk"> Added</label></div>
+        
+        <div class="iap-row"><span class="k">SKU</span><span class="v mono">pass_double_power</span><button class="copy big" data-v="pass_double_power">Copy</button></div>
+        <div class="iap-row"><span class="k">Name</span><span class="v">x2 Power</span><button class="copy big" data-v="x2 Power">Copy</button></div>
+        <div class="iap-row"><span class="k">Price (Bux)</span><span class="v mono">9</span><button class="copy big" data-v="9">Copy</button></div>
+        <div class="iap-row"><span class="k">Description</span><span class="v">Permanently doubles all Power you earn.</span><button class="copy big" data-v="Permanently doubles all Power you earn.">Copy</button></div>
+    </div>
+    <div class="iap" data-sku="pass_double_wins">
+        <div class="iap-head"><span class="num">12</span><b>x2 Wins</b><span class="kind">One-time (game pass)</span>
+            <label class="done-box"><input type="checkbox" class="done-chk"> Added</label></div>
+        
+        <div class="iap-row"><span class="k">SKU</span><span class="v mono">pass_double_wins</span><button class="copy big" data-v="pass_double_wins">Copy</button></div>
+        <div class="iap-row"><span class="k">Name</span><span class="v">x2 Wins</span><button class="copy big" data-v="x2 Wins">Copy</button></div>
+        <div class="iap-row"><span class="k">Price (Bux)</span><span class="v mono">99</span><button class="copy big" data-v="99">Copy</button></div>
+        <div class="iap-row"><span class="k">Description</span><span class="v">Permanently doubles the Wins from every Wins pad.</span><button class="copy big" data-v="Permanently doubles the Wins from every Wins pad.">Copy</button></div>
+    </div>
+    <div class="iap" data-sku="pass_cute_pogo">
+        <div class="iap-head"><span class="num">13</span><b>Cute Pogo</b><span class="kind">One-time (game pass)</span>
+            <label class="done-box"><input type="checkbox" class="done-chk"> Added</label></div>
+        
+        <div class="iap-row"><span class="k">SKU</span><span class="v mono">pass_cute_pogo</span><button class="copy big" data-v="pass_cute_pogo">Copy</button></div>
+        <div class="iap-row"><span class="k">Name</span><span class="v">Cute Pogo</span><button class="copy big" data-v="Cute Pogo">Copy</button></div>
+        <div class="iap-row"><span class="k">Price (Bux)</span><span class="v mono">79</span><button class="copy big" data-v="79">Copy</button></div>
+        <div class="iap-row"><span class="k">Description</span><span class="v">Unlocks the Cute Pogo: x60 Power per bounce, with hearts.</span><button class="copy big" data-v="Unlocks the Cute Pogo: x60 Power per bounce, with hearts.">Copy</button></div>
+    </div>
+    <div class="iap" data-sku="pass_galaxy_pogo">
+        <div class="iap-head"><span class="num">14</span><b>Galaxy Pogo</b><span class="kind">One-time (game pass)</span>
+            <label class="done-box"><input type="checkbox" class="done-chk"> Added</label></div>
+        
+        <div class="iap-row"><span class="k">SKU</span><span class="v mono">pass_galaxy_pogo</span><button class="copy big" data-v="pass_galaxy_pogo">Copy</button></div>
+        <div class="iap-row"><span class="k">Name</span><span class="v">Galaxy Pogo</span><button class="copy big" data-v="Galaxy Pogo">Copy</button></div>
+        <div class="iap-row"><span class="k">Price (Bux)</span><span class="v mono">249</span><button class="copy big" data-v="249">Copy</button></div>
+        <div class="iap-row"><span class="k">Description</span><span class="v">Unlocks the Galaxy Pogo: x150 Power per bounce, with stars.</span><button class="copy big" data-v="Unlocks the Galaxy Pogo: x150 Power per bounce, with stars.">Copy</button></div>
+    </div>
+    <div class="iap" data-sku="pass_admin_pogo">
+        <div class="iap-head"><span class="num">15</span><b>ADMIN Pogo</b><span class="kind">One-time (game pass)</span>
+            <label class="done-box"><input type="checkbox" class="done-chk"> Added</label></div>
+        
+        <div class="iap-row"><span class="k">SKU</span><span class="v mono">pass_admin_pogo</span><button class="copy big" data-v="pass_admin_pogo">Copy</button></div>
+        <div class="iap-row"><span class="k">Name</span><span class="v">ADMIN Pogo</span><button class="copy big" data-v="ADMIN Pogo">Copy</button></div>
+        <div class="iap-row"><span class="k">Price (Bux)</span><span class="v mono">399</span><button class="copy big" data-v="399">Copy</button></div>
+        <div class="iap-row"><span class="k">Description</span><span class="v">Unlocks the ADMIN Pogo: x300 Power per bounce.</span><button class="copy big" data-v="Unlocks the ADMIN Pogo: x300 Power per bounce.">Copy</button></div>
+    </div>
+    <div class="iap" data-sku="pass_admin_trampoline">
+        <div class="iap-head"><span class="num">16</span><b>ADMIN Trampoline</b><span class="kind">One-time (game pass)</span>
+            <label class="done-box"><input type="checkbox" class="done-chk"> Added</label></div>
+        
+        <div class="iap-row"><span class="k">SKU</span><span class="v mono">pass_admin_trampoline</span><button class="copy big" data-v="pass_admin_trampoline">Copy</button></div>
+        <div class="iap-row"><span class="k">Name</span><span class="v">ADMIN Trampoline</span><button class="copy big" data-v="ADMIN Trampoline">Copy</button></div>
+        <div class="iap-row"><span class="k">Price (Bux)</span><span class="v mono">299</span><button class="copy big" data-v="299">Copy</button></div>
+        <div class="iap-row"><span class="k">Description</span><span class="v">Unlocks the ADMIN trampoline: x250 Power per bounce on it.</span><button class="copy big" data-v="Unlocks the ADMIN trampoline: x250 Power per bounce on it.">Copy</button></div>
+    </div>
+    <div class="iap" data-sku="pass_rainbow_trail">
+        <div class="iap-head"><span class="num">17</span><b>Rainbow Trail</b><span class="kind">One-time (game pass)</span>
+            <label class="done-box"><input type="checkbox" class="done-chk"> Added</label></div>
+        
+        <div class="iap-row"><span class="k">SKU</span><span class="v mono">pass_rainbow_trail</span><button class="copy big" data-v="pass_rainbow_trail">Copy</button></div>
+        <div class="iap-row"><span class="k">Name</span><span class="v">Rainbow Trail</span><button class="copy big" data-v="Rainbow Trail">Copy</button></div>
+        <div class="iap-row"><span class="k">Price (Bux)</span><span class="v mono">99</span><button class="copy big" data-v="99">Copy</button></div>
+        <div class="iap-row"><span class="k">Description</span><span class="v">Unlocks the Rainbow Trail: x8 Power.</span><button class="copy big" data-v="Unlocks the Rainbow Trail: x8 Power.">Copy</button></div>
+    </div></div>
     <div class="note"><b>Starter Pack</b> is a product, but the server only grants it once per player.</div>
 
     <h2>Release</h2>
@@ -420,9 +587,28 @@ jump-pogo.host.bloxity.io">Copy</button>
 ]</pre>
 </main>
 <script>
+(function () {
+    const KEY = 'jp_iap_done';
+    let done = {};
+    try { done = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { done = {}; }
+    const cards = [...document.querySelectorAll('.iap')];
+    const paint = () => {
+        let n = 0;
+        cards.forEach((c) => { const on = !!done[c.dataset.sku]; c.classList.toggle('isdone', on); c.querySelector('.done-chk').checked = on; if (on) n++; });
+        const p = document.getElementById('progress'); if (p) p.textContent = n + ' / ' + cards.length + ' added';
+    };
+    cards.forEach((c) => c.querySelector('.done-chk').addEventListener('change', (e) => {
+        done[c.dataset.sku] = e.target.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (err) { /* private mode */ }
+        paint();
+    }));
+    const r = document.getElementById('resetDone');
+    if (r) r.addEventListener('click', () => { done = {}; try { localStorage.removeItem(KEY); } catch (err) { /* ignore */ } paint(); });
+    paint();
+})();
 document.addEventListener('click', async (e) => {
     const b = e.target.closest('button.copy');
-    if (!b) return;
+    if (!b || !b.dataset.v) return;
     try { await navigator.clipboard.writeText(b.dataset.v); }
     catch (err) { const t = document.createElement('textarea'); t.value = b.dataset.v; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
     const old = b.textContent; b.textContent = '✓'; b.classList.add('done');
