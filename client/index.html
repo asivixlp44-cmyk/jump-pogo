@@ -136,8 +136,7 @@ button:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
 #btnAuto.on { background: linear-gradient(#9cff8a, #28c43c); outline: 3px solid var(--white); }
 #acct { position: absolute; right: calc(max(1rem, env(safe-area-inset-right, 0px)) + 9rem); top: calc(env(safe-area-inset-top, 0px) + 0.9rem); display: flex; align-items: center; gap: 0.5rem; background: rgba(22, 18, 31, 0.6); border: 2px solid rgba(255, 255, 255, 0.25); border-radius: 2rem; padding: 0.2rem 0.3rem; max-width: 50vw; }
 #acctPfp { width: 2.2rem; height: 2.2rem; border-radius: 50%; object-fit: cover; background: #173a6e; }
-#acctName { font-size: 1.05rem; font-weight: 700; max-width: 11rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 0.3rem; }
-#acctBtn { font-size: 0.85rem; padding: 0.25rem 0.7rem; border-radius: 1rem; }
+#acctName { font-size: 1.05rem; font-weight: 700; max-width: 11rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 0.6rem 0 0.3rem; }
 #online { position: absolute; right: max(1rem, env(safe-area-inset-right, 0px)); top: calc(env(safe-area-inset-top, 0px) + 8.2rem); font-size: 1.05rem; font-weight: 700; background: rgba(22, 18, 31, 0.5); border-radius: 1rem; padding: 0.1rem 0.7rem; }
 #fps { position: absolute; right: max(1rem, env(safe-area-inset-right, 0px)); top: calc(env(safe-area-inset-top, 0px) + 10.2rem); font-size: 0.9rem; font-weight: 700; color: #7dff6b; font-variant-numeric: tabular-nums; }
 
@@ -369,7 +368,6 @@ body.touch #tips { bottom: calc(env(safe-area-inset-bottom, 0px) + 16rem); }
         <div id="acct" hidden>
             <img id="acctPfp" alt="" hidden>
             <span class="o1" id="acctName">Guest</span>
-            <button class="btn g-blue o1" id="acctBtn">Log in</button>
         </div>
         <div id="quickRow">
             <button class="qb" id="btnDaily" aria-label="Daily reward" title="Daily Reward">

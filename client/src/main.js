@@ -1045,12 +1045,10 @@ function showIdentity(id) {
     if (!avail) return;
     const label = id.name || 'Guest';
     $('#acctName').textContent = label;
-    $('#acctBtn').textContent = id.loggedIn ? 'Log out' : 'Log in';
     const pfp = $('#acctPfp');
     pfp.hidden = !id.pfp;
     if (id.pfp) pfp.src = id.pfp;
 }
-function toggleLogin() { if (BX.identity().loggedIn) BX.logout(); else BX.login(); }
 
 async function boot() {
     BX.initBloxity();
@@ -1068,7 +1066,6 @@ async function boot() {
         if (net.room && id.loggedIn && id.token && !net.bloxity) net.send('auth', { token: id.token });
         if (net.room) { setupLocalAvatar(); syncMyAvatar(); }
     });
-    $('#acctBtn').addEventListener('click', toggleLogin);
     $('#acctPfp').addEventListener('error', (e) => { e.target.hidden = true; });
     $('#playBtn').addEventListener('click', play);
     $('#reconnectBtn').addEventListener('click', () => location.reload());
