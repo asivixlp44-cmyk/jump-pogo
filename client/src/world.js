@@ -1,6 +1,5 @@
 import {
-    T, V3, scene, mat, box, aabb, UNIT, solids, triggers, tickers, texFrom, billboard, textPlane, camera, buildPogo, setPogoCompress, NEON_BOOST,
-} from './engine.js';
+    T, V3, scene, mat, box, aabb, UNIT, solids, triggers, tickers, texFrom, billboard, textPlane, camera, buildPogo, setPogoCompress, NEON_BOOST, toLambert } from './engine.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { S, actions, net } from './state.js';
 import { studWallMaterial } from './textures.js';
@@ -8,6 +7,7 @@ import {
     CFG, LOBBY, BRIDGE, STAIRS, STAIRS_Z0, STAIRS_END, STEP_DEPTH, SUMMIT, TRAMPS, TRAMP_COLORS, TRAMP_GEO, POGOS, POGO_GEO, PASSES,
     GROUP_CHEST, SECRET, GEMS, GEM_RESPAWN, stepColor, trampPos, padPos, secretAt, fmt, big, clock, rngFrom, buxText,
 } from '../../shared/config.js';
+import { batchStatic, skinRig } from './batch.js';
 
 const HX = LOBBY.halfX, HZ = LOBBY.halfZ;
 // Lobby colours read off the reference: light grey studded baseplate on a cartoon sea, bright
@@ -60,7 +60,7 @@ function flushDecorChunk(list) {
     g.setAttribute('normal', new T.BufferAttribute(nor, 3));
     g.setAttribute('color', new T.BufferAttribute(col, 3));
     g.computeBoundingSphere();
-    const mesh = new T.Mesh(g, new T.MeshStandardMaterial({ vertexColors: true, roughness: 0.7 }));
+    const mesh = new T.Mesh(g, toLambert({ vertexColors: true, roughness: 0.7 }));
     mesh.receiveShadow = true; mesh.castShadow = true;
     mesh.matrixAutoUpdate = false;
     scene.add(mesh);
@@ -349,7 +349,7 @@ function trampoline(x, z, color, r) {
         const a = k / 6 * Math.PI * 2;
         const leg = new T.Mesh(UNIT, mat(0x3a3a48)); leg.scale.set(0.4, top, 0.4); leg.position.set(Math.cos(a) * r * 0.9, top / 2, Math.sin(a) * r * 0.9); leg.castShadow = true; g.add(leg);
     }
-    const mm = new T.MeshStandardMaterial({ color: new T.Color(color).multiplyScalar(0.55), roughness: 0.35, metalness: 0.1, emissive: new T.Color(color).multiplyScalar(0.18) });
+    const mm = toLambert({ color: new T.Color(color).multiplyScalar(0.55), roughness: 0.35, metalness: 0.1, emissive: new T.Color(color).multiplyScalar(0.18) });
     const membrane = new T.Mesh(MEMBRANE, mm); membrane.scale.set(r * 0.88, 0.2, r * 0.88); membrane.position.y = top - 0.05; membrane.receiveShadow = true; g.add(membrane);
     const glow = new T.Mesh(new T.RingGeometry(r * 0.84, r * 0.9, 48), mat(color, { neon: true })); glow.rotation.x = -Math.PI / 2; glow.position.y = top + 0.07; g.add(glow);
     g.userData.dynamic = true;
@@ -644,7 +644,7 @@ function buildStairs() {
     const cv = document.createElement('canvas'); cv.width = 256; cv.height = 32;
     const cx = cv.getContext('2d');
     for (let i = 0; i < 16; i++) for (let j = 0; j < 2; j++) { cx.fillStyle = (i + j) % 2 ? '#16121f' : '#ffffff'; cx.fillRect(i * 16, j * 16, 16, 16); }
-    const chk = new T.Mesh(new T.PlaneGeometry(BRIDGE.width - 2.4, 3.6), new T.MeshStandardMaterial({ map: texFrom(cv), roughness: 0.6 }));
+    const chk = new T.Mesh(new T.PlaneGeometry(BRIDGE.width - 2.4, 3.6), toLambert({ map: texFrom(cv), roughness: 0.6 }));
     chk.rotation.x = -Math.PI / 2; chk.position.set(0, 0.05, STAIRS_Z0 - 4); chk.receiveShadow = true; scene.add(chk);
     gradientBanner('RAINBOW STAIRS', ['#ffffff', '#ffe36b'], 26, new V3(0, 13, BRIDGE.z0 + 4), new V3(0, 0, -1), 'Bounce higher for more Wins!', '#7dff6b');
 
@@ -737,7 +737,7 @@ const GEM_COLORS = [0x5af0ff, 0xc46aff, 0x7dff6b, 0xffd028, 0xff5ab8];
 function buildGems() {
     GEMS.forEach((g) => {
         const color = GEM_COLORS[g.i % GEM_COLORS.length];
-        const m = new T.MeshStandardMaterial({ color, emissive: new T.Color(color).multiplyScalar(0.9), roughness: 0.15, metalness: 0.3, transparent: true });
+        const m = toLambert({ color, emissive: new T.Color(color).multiplyScalar(0.9), roughness: 0.15, metalness: 0.3, transparent: true });
         const mesh = new T.Mesh(GEM_GEO, m); mesh.scale.set(1, 1.5, 1); mesh.position.set(g.x, g.y, g.z); mesh.castShadow = true;
         mesh.userData.dynamic = true; scene.add(mesh);
         const halo = new T.Sprite(new T.SpriteMaterial({ map: haloTex, color, transparent: true, depthWrite: false, blending: T.AdditiveBlending, opacity: 0.8 }));
@@ -867,7 +867,7 @@ function bakeStatics() {
     scene.traverse((o) => {
         if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || Array.isArray(o.material) || o.material.transparent || isDynamic(o)) return;
         const m = o.material;
-        if (!m.isMeshStandardMaterial && !m.isMeshBasicMaterial) return;
+        if (!m.isMeshLambertMaterial && !m.isMeshBasicMaterial) return;
         if (m.isMeshBasicMaterial && m.map) return;
         const g = o.geometry, a = g.attributes;
         if (!a.position || !a.normal || !a.uv || a.color) return;
@@ -958,4 +958,6 @@ export function buildWorld() {
     bakeStatics();
     cullSigns();
     refreshShop();
+    // every box that never moves drawn together with the others that look the same
+    batchStatic(scene);
 }

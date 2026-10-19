@@ -1,4 +1,4 @@
-import { T, texFrom, studMaterial } from './engine.js';
+import { T, texFrom, studMaterial, toLambert } from './engine.js';
 
 // Canvas-generated surface textures: cracked lava, water, bricks, studded walls, cracked stone,
 // dotted sandstone and checkerboard.
@@ -204,14 +204,14 @@ const checkerImg = checkerCanvas();
 export function dottedWallMaterial(color, rx, ry) {
     const id = 'dotMat' + color + Math.round(rx) + 'x' + Math.round(ry);
     if (cache.has(id)) return cache.get(id);
-    const m = new T.MeshStandardMaterial({ roughness: 0.6, color, map: repeated(dottedImg, 'dot', rx, ry) });
+    const m = toLambert({ roughness: 0.6, color, map: repeated(dottedImg, 'dot', rx, ry) });
     cache.set(id, m);
     return m;
 }
 export function checkerMaterial(color, rx, ry) {
     const id = 'chkMat' + color + Math.round(rx) + 'x' + Math.round(ry);
     if (cache.has(id)) return cache.get(id);
-    const m = new T.MeshStandardMaterial({ roughness: 0.5, color, map: repeated(checkerImg, 'chk', rx, ry) });
+    const m = toLambert({ roughness: 0.5, color, map: repeated(checkerImg, 'chk', rx, ry) });
     cache.set(id, m);
     return m;
 }

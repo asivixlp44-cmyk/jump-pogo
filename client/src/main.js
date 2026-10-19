@@ -917,7 +917,7 @@ function update(dt) {
 // =====================================================================================
 // Boot
 // =====================================================================================
-let lastFrame = 0, loadingSignaled = false, fpsAcc = 0, fpsFrames = 0, showFps = false;
+let frameErrors = 0, lastFrame = 0, loadingSignaled = false, fpsAcc = 0, fpsFrames = 0, showFps = false;
 function frame(now) {
     const dt = Math.min(0.05, (now - (lastFrame || now)) / 1000);
     fpsAcc += (now - (lastFrame || now)) / 1000; fpsFrames++;
@@ -928,16 +928,19 @@ function frame(now) {
         loadingSignaled = true;
         BX.triggerAllSettings();
     }
-    pollGamepad();
-    padButtons();
-    // Controller mode: button hints on the HUD and a visible focus ring in menus
-    const padMode = usingPad();
-    if (padMode !== document.body.classList.contains('pad')) { document.body.classList.toggle('pad', padMode); if (running) showTips(); }
-    if (running) update(dt);
-    else { updateWorld(dt, now / 1000); for (const fn of tickers) fn(dt, now / 1000); }
-    updateCamera(dt);
-    updateSky(camera.position, now / 1000);
-    render();
+    // one bad frame (a broken avatar item, say) must never stop the game: log it and keep going
+    try {
+        pollGamepad();
+        padButtons();
+        // Controller mode: button hints on the HUD and a visible focus ring in menus
+        const padMode = usingPad();
+        if (padMode !== document.body.classList.contains('pad')) { document.body.classList.toggle('pad', padMode); if (running) showTips(); }
+        if (running) update(dt);
+        else { updateWorld(dt, now / 1000); for (const fn of tickers) fn(dt, now / 1000); }
+        updateCamera(dt);
+        updateSky(camera.position, now / 1000);
+        render();
+    } catch (e) { if (frameErrors++ < 5) console.error('frame error', e); }
     requestAnimationFrame(frame);
 }
 

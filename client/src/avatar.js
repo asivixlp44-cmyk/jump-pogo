@@ -4,7 +4,9 @@
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { T, V3 } from './engine.js';
+import { AvatarMotion } from './animator.js';
 
 export const AVATAR_CDN = 'https://static.bloxity.io/avatars';
 const API = 'https://api.bloxity.io';
@@ -89,7 +91,7 @@ function loadObj(slotDir, texDir, id) {
     return objCache.get(key).then(([obj, tex]) => {
         if (!obj) return null;
         const o = obj.clone(true);
-        o.traverse((c) => { if (c.isMesh) { c.material = new T.MeshStandardMaterial({ map: tex, roughness: 1, metalness: 0 }); c.castShadow = true; } });
+        o.traverse((c) => { if (c.isMesh) { c.material = new T.MeshLambertMaterial({ map: tex }); c.castShadow = true; } });
         return o;
     });
 }
@@ -100,6 +102,43 @@ function loadPart(info, id) {
         partCache.set(key, new Promise((res) => new GLTFLoader().load(`${AVATAR_CDN}/parts/${info.dir}/${id}${info.suffix}.glb`, res, undefined, () => res(null))));
     }
     return partCache.get(key);
+}
+
+// A rigid part's geometry with every vertex bound to the bone the original part mostly follows
+export function rigidToSkinned(geo, orig) {
+    const g = geo.clone(), si = orig && orig.getAttribute('skinIndex'), sw = orig && orig.getAttribute('skinWeight');
+    const weight = new Map();
+    if (si && sw) for (let i = 0; i < si.count; i++) weight.set(si.getX(i), (weight.get(si.getX(i)) || 0) + sw.getX(i));
+    let bone = 0, best = -1;
+    for (const [b, w] of weight) if (w > best) { best = w; bone = b; }
+    const n = g.attributes.position.count, idx = new Uint16Array(n * 4), w = new Float32Array(n * 4);
+    for (let i = 0; i < n; i++) { idx[i * 4] = bone; w[i * 4] = 1; }
+    g.setAttribute('skinIndex', new T.Uint16BufferAttribute(idx, 4));
+    g.setAttribute('skinWeight', new T.Float32BufferAttribute(w, 4));
+    return g;
+}
+
+// A body part's geometry with only what it draws with, in fixed array types: parts from different
+// files store joints and weights differently, and merging them needs them all alike
+const GET = ['getX', 'getY', 'getZ', 'getW'];
+function bodyPartGeo(g) {
+    const n = g.attributes.position.count, out = new T.BufferGeometry();
+    const put = (name, size, Arr, src, fill) => {
+        const a = new Arr(n * size);
+        if (src) for (let k = 0; k < size; k++) { const get = src[GET[k]].bind(src); for (let i = 0; i < n; i++) a[i * size + k] = get(i); }
+        else for (let i = 0; i < n; i++) a.set(fill, i * size);
+        out.setAttribute(name, new T.BufferAttribute(a, size));
+    };
+    if (!g.attributes.normal) { g = g.clone(); g.computeVertexNormals(); }
+    put('position', 3, Float32Array, g.attributes.position);
+    put('normal', 3, Float32Array, g.attributes.normal);
+    put('uv', 2, Float32Array, g.attributes.uv, [0, 0]);
+    put('skinIndex', 4, Uint16Array, g.attributes.skinIndex, [0, 0, 0, 0]);
+    put('skinWeight', 4, Float32Array, g.attributes.skinWeight, [1, 0, 0, 0]);
+    const idx = new Uint32Array(g.index ? g.index.count : n);
+    for (let i = 0; i < idx.length; i++) idx[i] = g.index ? g.index.getX(i) : i;
+    out.setIndex(new T.BufferAttribute(idx, 1));
+    return out;
 }
 
 // Emote clip sampling (degrees, deltas over bind pose, smoothstep between keys)
@@ -138,7 +177,7 @@ export class BloxAvatar {
         model.traverse((c) => {
             if (c.isSkinnedMesh) {
                 if (!skeleton) skeleton = c.skeleton;
-                c.material = new T.MeshStandardMaterial({ color: 0xffffff, roughness: 1, metalness: 0 });
+                c.material = new T.MeshLambertMaterial({ color: 0xffffff });
                 c.castShadow = true;
                 c.frustumCulled = false;
                 for (const [slot, name] of Object.entries(PART_MESH_NAMES)) {
@@ -162,15 +201,52 @@ export class BloxAvatar {
             this.neckOffsetBindY = 0;
             skeleton.bones.forEach((b, i) => { if (b.name === 'Neck_Offset') this.neckOffsetBindY = skeleton.boneInverses[i].clone().invert().elements[13]; });
             this.patchSkeleton(model);
+            // the top games' run / jump / land animation, bound in the rest pose
+            this.motion = new AvatarMotion(this.bones, model, TARGET_HEIGHT);
+            this.spec = {};
         }
-        // Normalise to the game's character height, feet on y = 0
-        const box = new T.Box3().setFromObject(model);
+        // Normalise to the game's character height, feet on y = 0. Measuring a skinned model walks
+        // every vertex through its bones (over a second on a slow PC), and every avatar is the same
+        // base model, so it is measured once and remembered.
+        if (!gltf.userData.restBox) gltf.userData.restBox = new T.Box3().setFromObject(model);
+        const box = gltf.userData.restBox;
         const h = box.getSize(new V3()).y || 1;
         this.baseScale = TARGET_HEIGHT / h;
         this.footOffset = -box.min.y * this.baseScale;
         model.scale.setScalar(this.baseScale);
         model.position.y = this.footOffset;
         this.root.add(model);
+        this.buildBody();
+    }
+
+    // The six body parts drawn as one skinned mesh: one draw call, one shadow draw and one skeleton
+    // update per player instead of six each (busy servers draw dozens of players). Rebuilt when a
+    // part changes; a part that can't be merged leaves the parts drawn on their own as before.
+    buildBody() {
+        const parts = Object.values(this.partMeshes).filter(Boolean);
+        if (!parts.length || !this.skeleton || this.disposed) return;
+        let g = null;
+        try { g = mergeGeometries(parts.map((p) => bodyPartGeo(p.geometry)), false); } catch (e) { g = null; }
+        if (!g) { for (const p of parts) p.visible = true; if (this.body) this.body.visible = false; return; }
+        const first = parts[0];
+        if (!this.body) {
+            this.body = new T.SkinnedMesh(g, first.material);
+            this.body.name = 'blox_body';
+            this.body.castShadow = true;
+            first.parent.add(this.body);
+            this.body.bind(first.skeleton, first.bindMatrix);
+        } else {
+            this.body.geometry.dispose();
+            this.body.geometry = g;
+        }
+        // a fixed sphere round the whole body in any pose (arms up included), so players off screen
+        // or outside the shadow's reach are skipped and nothing re-measures the posed mesh
+        g.computeBoundingBox();
+        const bb = g.boundingBox, c = bb.getCenter(new V3()), r = bb.getSize(new V3()).length() * 0.75;
+        this.body.boundingSphere = new T.Sphere(c, r);
+        this.body.boundingBox = bb.clone().expandByScalar(r * 0.35);
+        this.body.visible = true;
+        for (const p of parts) p.visible = false;
     }
 
     // Shoulder width / torso width / leg spacing move vertices through the bone matrices
@@ -214,10 +290,10 @@ export class BloxAvatar {
         const url = skinUrl || skinUrlFor(eq);
         if (url !== this.skinUrl) {
             this.skinUrl = url;
-            pixelTexture(url, false).then((tex) => {
+            this.skinReady = pixelTexture(url, false).then((tex) => {
                 if (!tex || this.disposed || this.skinUrl !== url) return;
                 this.model.traverse((c) => { if (c.isSkinnedMesh) { c.material.map = tex; c.material.needsUpdate = true; } });
-            });
+            }).catch(() => {});
         }
         for (const [slot, info] of Object.entries(PART_INFO)) if (eq[info.key] !== prev[info.key]) this.swapPart(slot, eq[info.key]);
         for (const k of ['hatId', 'hairId', 'maskId']) if (eq[k] !== prev[k]) this.attach(k, 'hats', 'hats', eq[k], 'Neck1', (o) => o.position.set(0, 0.8, 0));
@@ -235,12 +311,17 @@ export class BloxAvatar {
     swapPart(slot, id) {
         const target = this.partMeshes[slot];
         if (!target) return;
-        if (!isEquipped(id)) { target.geometry = this.origGeos[slot]; return; }
+        // a skinned mesh caches its bounds from the geometry it had: recompute them for the new one
+        const use = (geo) => { target.geometry = geo; target.boundingSphere = null; target.boundingBox = null; this.buildBody(); };
+        if (!isEquipped(id)) { use(this.origGeos[slot]); return; }
         loadPart(PART_INFO[slot], id).then((gltf) => {
             if (!gltf || this.disposed || this.eq[PART_INFO[slot].key] !== id) return;
             let sm = null, rm = null;
             gltf.scene.traverse((c) => { if (c.isSkinnedMesh && !sm) sm = c; else if (c.isMesh && !rm) rm = c; });
-            if (!sm) { if (rm) target.geometry = rm.geometry; return; }
+            // a part made as a plain mesh gets skinned to the bone its slot follows (a skinned mesh
+            // without skin data breaks the renderer's bounds and sorting: the game would freeze)
+            if (!sm) { if (rm) use(rigidToSkinned(rm.geometry, this.origGeos[slot])); return; }
+            if (!sm.geometry.getAttribute('skinIndex') || !sm.geometry.getAttribute('skinWeight')) { use(rigidToSkinned(sm.geometry, this.origGeos[slot])); return; }
             const geo = sm.geometry.clone();
             if (this.skeleton && sm.skeleton) {
                 const nameMap = new Map();
@@ -250,7 +331,7 @@ export class BloxAvatar {
                 const si = geo.getAttribute('skinIndex');
                 if (si) { for (let i = 0; i < si.array.length; i++) { const m = idx.get(si.array[i]); if (m !== undefined) si.array[i] = m; } si.needsUpdate = true; }
             }
-            target.geometry = geo;
+            use(geo);
         });
     }
 
@@ -285,7 +366,8 @@ export class BloxAvatar {
 
     playEmote(clip) { this.emote = clip ? { clip, t: 0 } : null; }
 
-    // Per-frame pose: bind pose + proportions + run/jump cycle or emote
+    // Per-frame pose: bind pose + proportions, then the run / jump animation (animator.js), this
+    // game's own poses faded in over it, or an emote
     update(dt, st) {
         if (!this.skeleton) return;
         const p = this.props;
@@ -293,10 +375,8 @@ export class BloxAvatar {
         this.model.scale.set(this.baseScale, this.baseScale * h, this.baseScale);
         this.model.position.y = this.footOffset * h;
         if ((st.moving && !st.air && !st.pogo) || st.climb) this.emote = null; // moving cancels an emote
-        const speed = st.moving ? Math.min(18, 4 + (st.speed || 16) * 0.2) : 0;
-        this.phase += dt * (st.air ? 0 : speed);
         this.climbPhase = (this.climbPhase || 0) + dt * (st.climb && st.moving ? 9 : 0);
-        const swing = st.moving && !st.air ? Math.sin(this.phase) * 0.75 : 0;
+        const special = !!(st.pogo || st.climb);
         const breathe = Math.sin((st.t || 0) * 1.8) * 0.015;
         if (this.emote) { this.emote.t += dt; this.emoteW = Math.min(1, this.emoteW + dt / 0.1); }
         else this.emoteW = Math.max(0, this.emoteW - dt / 0.1);
@@ -322,15 +402,6 @@ export class BloxAvatar {
                 if (name === 'ArmR_Offset') rx = -2.7 - c * 0.45;
                 if (name === 'LegL_Offset') rx = -0.35 - c * 0.4;
                 if (name === 'LegR_Offset') rx = -0.35 + c * 0.4;
-            } else if (st.air) {
-                if (name === 'ArmL_Offset' || name === 'ArmR_Offset') rx = -2.5;
-                if (name === 'LegL_Offset') rx = -0.45;
-                if (name === 'LegR_Offset') rx = 0.3;
-            } else {
-                if (name === 'ArmL_Offset') rx = swing;
-                if (name === 'ArmR_Offset') rx = -swing;
-                if (name === 'LegL_Offset') rx = -swing;
-                if (name === 'LegR_Offset') rx = swing;
             }
             if (this.emoteW > 0 && clip && clip.tracks && clip.tracks[name]) {
                 const v = sampleTrack(clip.tracks[name], ct);
@@ -340,8 +411,12 @@ export class BloxAvatar {
                     rx *= 1 - w; rz *= 1 - w;
                 }
             }
-            if (rx || rz) bone.quaternion.multiply(tq.setFromEuler(te.set(rx, 0, rz, 'XYZ')));
+            // kept while it fades out again
+            if (special) { const s = this.spec[name] || (this.spec[name] = [0, 0]); s[0] = rx; s[1] = rz; }
         }
+        this.motion.apply(this, dt, st, special, this.spec, false, this.emoteW);
+        // the renderer brings every matrix up to date anyway: only items that follow a bone need them now
+        if (!this.pairs.length) return;
         this.model.updateMatrixWorld(true);
         // Paired items follow their bone (position + rotation only) in model space
         if (this.pairs.length) {
@@ -357,6 +432,7 @@ export class BloxAvatar {
         this.disposed = true;
         this.root.parent && this.root.parent.remove(this.root);
         this.model.traverse((c) => { if (c.material && c.isSkinnedMesh) c.material.dispose(); });
+        if (this.body) this.body.geometry.dispose();
     }
 }
 
@@ -366,5 +442,7 @@ export async function createAvatar(av, skinUrl) {
     try { gltf = await loadBase(); } catch (e) { return null; }
     const a = new BloxAvatar(gltf);
     if (av) { a.setProportions(av.proportions); a.setEquipped(av, skinUrl); } else a.setEquipped({}, null);
+    // shown only once its skin is on (no blank white body for the first moments)
+    await Promise.race([a.skinReady || Promise.resolve(), new Promise((r) => setTimeout(r, 4000))]);
     return a;
 }

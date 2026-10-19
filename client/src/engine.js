@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { skinRig } from './batch.js';
 
 export const T = THREE;
 export const V3 = THREE.Vector3;
@@ -73,17 +73,11 @@ function resize() {
 addEventListener('resize', resize);
 resize();
 
-// Image-based light from a soft studio room, so the PBR materials get gentle reflections and
-// shading on every side; the sun adds direction and shadows on top
-{
-    const pm = new T.PMREMGenerator(renderer);
-    const room = new RoomEnvironment();
-    scene.environment = pm.fromScene(room, 0.04).texture;
-    scene.environmentIntensity = 0.6;
-    pm.dispose();
-}
-scene.add(new T.HemisphereLight(0xeaf4ff, 0x7a8a5a, 0.8));
-export const sun = new T.DirectionalLight(0xfff2dc, 1.7);
+// No environment map or reflections (like Bloxity's top games): matte materials lit by the sky
+// light, a little ambient and the sun
+scene.add(new T.HemisphereLight(0xeaf4ff, 0x7a8a5a, 1.1));
+scene.add(new T.AmbientLight(0xffffff, 0.45));
+export const sun = new T.DirectionalLight(0xfff3e0, 1.5);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
 Object.assign(sun.shadow.camera, { left: -70, right: 70, top: 70, bottom: -70, near: 1, far: 320 });
@@ -96,17 +90,24 @@ scene.add(sun, sun.target);
 export const UNIT = new T.BoxGeometry(1, 1, 1);
 // Neon is pushed well above 1.0 so only it crosses the bloom threshold (fx.js)
 export const NEON_BOOST = 2.0;
+// Matte materials only: PBR settings (roughness, metal, normal maps, environment) are dropped
+const PBR_ONLY = ['roughness', 'metalness', 'roughnessMap', 'metalnessMap', 'normalMap', 'normalScale', 'normalMapType', 'envMap', 'envMapIntensity', 'clearcoat', 'clearcoatRoughness', 'sheen', 'sheenColor', 'sheenRoughness', 'ior', 'transmission', 'thickness', 'iridescence', 'specularIntensity', 'specularColor'];
+export function toLambert(p) {
+    const q = { ...(p || {}) };
+    for (const k of PBR_ONLY) delete q[k];
+    return new T.MeshLambertMaterial(q);
+}
 const matCache = new Map();
-// Plastic-like PBR (Roblox "SmoothPlastic"): a little sheen from the environment, no metal
+// Matte plastic (Lambert), lit by the sky light, ambient and sun like the top games
 export function mat(color, o) {
     o = o || {};
     const key = color + '|' + (o.neon ? 1 : 0) + '|' + (o.opacity || 1);
     let m = matCache.get(key);
     if (!m) {
-        m = o.neon ? new T.MeshBasicMaterial({ color }) : new T.MeshStandardMaterial({ color, roughness: 0.55, metalness: 0 });
-        // Neon is HDR (brighter than 1) so the bloom pass picks it up
+        m = o.neon ? new T.MeshBasicMaterial({ color }) : toLambert({ color, roughness: 0.55, metalness: 0 });
         if (o.neon) m.color.multiplyScalar(NEON_BOOST);
         if (o.opacity && o.opacity < 1) { m.transparent = true; m.opacity = o.opacity; m.depthWrite = false; }
+        m.userData.fold = true; // a shared colour: the world batcher may bake it into vertex colours
         matCache.set(key, m);
     }
     return m;
@@ -175,8 +176,9 @@ export function studMaterial(color, o) {
     let m = matCache.get(key);
     if (!m) {
         const t = studMaps(rx, ry);
-        m = new T.MeshStandardMaterial({ color, map: t.map, normalMap: t.nrm, normalScale: new T.Vector2(0.9, 0.9), roughness: o.ice ? 0.08 : 0.5, metalness: o.ice ? 0.12 : 0 });
+        m = toLambert({ color, map: t.map, normalMap: t.nrm, normalScale: new T.Vector2(0.9, 0.9), roughness: o.ice ? 0.08 : 0.5, metalness: o.ice ? 0.12 : 0 });
         if (o.ice) { m.envMapIntensity = 1.8; m.emissive = new T.Color(0x16384a); }
+        else m.userData.fold = true; // a shared tinted tile: the world batcher may bake the tint
         matCache.set(key, m);
     }
     return m;
@@ -455,7 +457,7 @@ const CYL = new T.CylinderGeometry(1, 1, 1, 14);
 const metalCache = new Map();
 function metal(color, rough) {
     const key = color + '|' + rough;
-    if (!metalCache.has(key)) metalCache.set(key, new T.MeshStandardMaterial({ color, metalness: 0.65, roughness: rough ?? 0.28 }));
+    if (!metalCache.has(key)) { const m = toLambert({ color }); m.userData.fold = true; metalCache.set(key, m); }
     return metalCache.get(key);
 }
 export function buildPogo(def) {
@@ -485,6 +487,9 @@ export function buildPogo(def) {
     add(CYL, mat(0x16121f), 0.3, 0.32, 0.3, 0, -POGO_TIP + 0.16, 0, low);
     add(CYL, metal(def.pole), 0.25, 0.22, 0.25, 0, -0.08, 0, low);
     g.userData = { low, spring, glowM, rainbow };
+    // one skinned mesh for the stick (the plunger moves as a bone); the spring stretches on its own
+    spring.userData.dynamic = true;
+    skinRig(g);
     return g;
 }
 // k = 0 rest .. 1 fully squashed: the body drops by up to 1.1 studs while the foot stays on the ground
